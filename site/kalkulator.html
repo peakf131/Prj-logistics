@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="pl" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><meta name="referrer" content="no-referrer">
+<style>body{margin:0}</style></head><body>
+<title>Kalkulator pracy</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the answer first (what you take home a day), then the offer, the van, tax, and a list to compare offers. */
+:root{
+  --bg:#F4F6F2; --card:#FFFFFF; --ink:#0E1726; --muted:#5E6B7C; --line:#E2E7E0; --soft:#F2F5EE;
+  --navy:#040C18; --navy2:#0A1424; --green:#77B72B; --gdark:#4E7D1A; --gsoft:#EEF6E4;
+  --fuel:#E07B00; --van:#3F5E8C; --tax:#9AA6B5; --bad:#C0392B; --badsoft:#FDECEA;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif; --body:Barlow,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1424; --card:#111E33; --ink:#E8EEF5; --muted:#9AA8BA; --line:#22324B; --soft:#16253D; --gdark:#8FD14A; --gsoft:#1A3020;
+  --fuel:#F2A04A; --van:#7C9BD0; --tax:#5A6B82; --bad:#FF8A80; --badsoft:#3A1A18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1424; --card:#111E33; --ink:#E8EEF5; --muted:#9AA8BA; --line:#22324B; --soft:#16253D; --gdark:#8FD14A; --gsoft:#1A3020;
+  --fuel:#F2A04A; --van:#7C9BD0; --tax:#5A6B82; --bad:#FF8A80; --badsoft:#3A1A18; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body)}
+[hidden]{display:none!important}
+header.bar{background:var(--navy);color:#fff;border-bottom:4px solid var(--green)}
+header.bar .in{max-width:1000px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header.bar h1{font:800 1.7rem/1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0;display:flex;align-items:center;gap:10px}
+header.bar h1 i{width:34px;height:34px;border-radius:9px;background:var(--green);color:var(--navy);display:grid;place-items:center;font-style:normal;font-size:1.1rem}
+header.bar span{color:#C9D2DC;font-size:.92rem}
+.wrap{max-width:1000px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(14,23,38,.05),0 8px 24px rgba(14,23,38,.06);min-width:0}
+h2{font:800 1.5rem/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h3{font:800 1.15rem/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0}
+.hint{color:var(--muted);font-size:.9rem;margin:0}
+.res{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:760px){.res{grid-template-columns:minmax(0,1fr)}}
+.lab{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font:800 clamp(3rem,11vw,4.6rem)/1 var(--display);font-variant-numeric:tabular-nums;color:var(--gdark);margin:4px 0}
+.big small{font:600 1.1rem var(--body);color:var(--muted);margin-left:6px}
+.stack{display:flex;height:18px;border-radius:99px;overflow:hidden;margin:12px 0 8px;background:var(--soft)}
+.stack i{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.86rem;color:var(--muted)}
+.leg b{color:var(--ink);font-variant-numeric:tabular-nums}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.per{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--soft);border-radius:12px;padding:12px 14px}
+.tile b{display:block;font:800 1.6rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.tile span{font-size:.8rem;color:var(--muted)}
+.tile.dark{background:var(--navy2);color:#fff}.tile.dark span{color:#C9D2DC}.tile.dark b{color:var(--green)}
+.warn{background:var(--badsoft);color:var(--bad);border-radius:12px;padding:10px 14px;font-weight:600;font-size:.92rem}
+.phases{display:flex;flex-direction:column;gap:10px}
+.ph{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,.8fr) auto 30px;gap:8px;align-items:end;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}
+@media (max-width:640px){.ph{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ph .nm{grid-column:1/-1}.ph .ownv{grid-column:1}.ph .x{grid-column:2;justify-self:end}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:700;color:var(--muted);min-width:0}
+label.f input,label.f select{font:500 1rem var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;width:100%;min-width:0}
+input:focus,select:focus,button:focus-visible{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(119,183,43,.25)}
+.mon{position:relative;display:block}label.f .mon input{padding-left:26px}.mon:before{content:"£";position:absolute;left:10px;bottom:9px;color:var(--muted);font-weight:600;font-size:1rem}
+.ownv{display:flex;align-items:center;gap:6px;font-size:.88rem;font-weight:600;padding-bottom:8px;white-space:nowrap;cursor:pointer}
+.ownv input{width:18px;height:18px;accent-color:var(--green)}
+.x{border:0;background:transparent;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:6px;border-radius:8px;align-self:center}
+.btn{font:600 .95rem/1 var(--body);border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;cursor:pointer}
+.btn.go{background:var(--green);border-color:var(--green);color:var(--navy)}
+.btn.sm{padding:7px 10px;font-size:.86rem}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.grid3,.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sub{margin:16px 0 8px;font:700 .8rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.94rem}
+th{text-align:left;font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px;border-bottom:1.5px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td.r,th.r{text-align:right;white-space:nowrap}
+tr.tot td{font-weight:800;background:var(--soft)}
+td.net{color:var(--gdark);font-weight:700}
+.minus{color:var(--muted)}
+.toggle{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer;margin-top:10px}
+.toggle input{width:18px;height:18px;accent-color:var(--green)}
+.cmp td b{font-weight:700}
+.best{background:var(--gsoft)}
+.note{font-size:.86rem;color:var(--muted);line-height:1.55}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+
+.tabs{display:flex;gap:6px;margin-left:auto;overflow-x:auto;max-width:100%;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{white-space:nowrap;flex:none}
+@media (max-width:900px){.tabs{margin-left:0;width:100%}}
+.tabs button{font:700 .95rem var(--body);border:1.5px solid #2A3A52;background:transparent;color:#C9D2DC;border-radius:10px;padding:8px 12px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--green);border-color:var(--green);color:var(--navy)}
+.kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.kpi{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi .tile b{font-size:1.5rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;border-radius:99px;padding:4px 10px;background:var(--soft);color:var(--muted)}
+.pill.on{background:var(--gsoft);color:var(--gdark)}
+.pill i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.addf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.6fr) auto;gap:8px;align-items:end;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);margin-bottom:12px}
+@media (max-width:760px){.addf{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.addf .wide{grid-column:1/-1}}
+.cbar{display:grid;grid-template-columns:minmax(90px,1.2fr) minmax(0,2fr) auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.cbar .tr{height:10px;border-radius:99px;background:var(--soft);overflow:hidden}.cbar .tr i{display:block;height:100%;background:var(--van);border-radius:99px}
+.cbar .tr i.var{background:var(--fuel)}
+.cbar .v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.cbar .v small{display:block;color:var(--muted);font-size:.76rem}
+.save3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.save3{grid-template-columns:minmax(0,1fr)}}
+.due td:first-child{white-space:nowrap}
+.src{font-size:.78rem;color:var(--muted)}
+.loginc{max-width:380px;display:flex;flex-direction:column;gap:12px}
+.err{color:var(--bad);font-weight:600;font-size:.9rem;min-height:1.2em}
+.list{max-height:420px;overflow:auto}
+.payf{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:760px){.payf{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.adv{border:1px solid var(--line);border-left:4px solid var(--green);border-radius:10px;padding:12px 14px;background:var(--card)}
+.goal{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft)}
+.goal .bar{position:relative;height:14px;border-radius:99px;background:var(--line);overflow:hidden;margin:10px 0 6px}
+.goal .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--green)}
+.goal .bar u{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--ink);text-decoration:none}
+.ybar{gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.ybar .pill{max-width:100%}
+@media (max-width:640px){.ybar #ySrc{display:none}}
+.vchk{border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 14px;background:var(--soft)}
+.vck{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.vci{width:22px;height:22px;border-radius:50%;border:2px solid;display:grid;place-items:center;font-weight:800;font-size:.8rem;line-height:1}
+#unpBox td{padding:9px 6px}#unpBox td.r{white-space:normal}#unpBox .pill{white-space:nowrap}
+.imp{border:1.5px dashed var(--green);border-radius:12px;padding:12px;margin-bottom:12px;background:var(--gsoft)}
+.imp table select{font:500 .88rem var(--body);padding:4px 6px;border:1.5px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);max-width:170px}
+.imp td input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}
+.imp tr.off td{opacity:.45}.dform{grid-template-columns:repeat(4,minmax(0,1fr))}
+.dform .act{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+@media (max-width:640px){.dform{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dprev{border-left:4px solid var(--green,#77B72B);background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:.95rem}
+.dprev b{font-variant-numeric:tabular-nums}
+tr.wk td{background:var(--soft);font-weight:700}
+
+</style>
+
+<header class="bar"><div class="in"><h1><i>£</i>Kalkulator pracy</h1><span>Ile naprawdę zostaje z dniówki na własnym vanie</span><nav class="tabs" aria-label="Widok"><button type="button" data-go="sum" aria-selected="true">Podsumowanie</button><button type="button" data-go="dhl" aria-selected="false">Dziennik dni</button><button type="button" data-go="money" aria-selected="false">Przychody i koszty</button><button type="button" data-go="paye" aria-selected="false">Etat</button><button type="button" data-go="vat" aria-selected="false">VAT</button><button type="button" data-go="calc" aria-selected="false">Kalkulator oferty</button><button type="button" data-go="set" aria-selected="false">Lata i ustawienia</button><button type="button" id="tOut" hidden>Wyloguj</button></nav></div></header>
+<div class="wrap" id="vCalc" hidden>
+
+  <section class="card" aria-labelledby="hRes">
+    <div class="res">
+      <div>
+        <div class="lab" id="hRes">Na rękę za dzień na własnym vanie</div>
+        <div class="big" id="netDay">£0</div>
+        <div class="hint" id="netSub"></div>
+        <div class="stack" id="stack" aria-hidden="true"></div>
+        <div class="leg" id="legend"></div>
+      </div>
+      <div class="per" id="per"></div>
+    </div>
+    <div id="warn" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card" aria-labelledby="hOffer">
+    <h2 id="hOffer">Oferta <label class="f" style="flex-direction:row;align-items:center;gap:8px;font-size:.9rem;text-transform:none;letter-spacing:0">Firma<input id="company" maxlength="40" style="width:170px" placeholder="np. DHL"></label></h2>
+    <div class="phases" id="phases"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm" id="addPh">+ Dodaj etap</button></div>
+    <div class="sub">Potem, normalnie</div>
+    <div class="grid3">
+      <label class="f" for="dpw">Dni w tygodniu<input id="dpw" type="number" min="1" max="7" step="1"></label>
+      <label class="f" for="hpd">Godzin dziennie<input id="hpd" type="number" min="1" max="16" step="0.5"></label>
+      <label class="f" for="wpy">Tygodni pracy w roku<input id="wpy" type="number" min="1" max="52" step="1"></label>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="hVan">
+    <h2 id="hVan">Twój van</h2>
+    <div class="sub" style="margin-top:0">Każdy dzień pracy</div>
+    <div class="grid4">
+      <label class="f" for="miles">Mile dziennie (z dojazdem)<input id="miles" type="number" min="0" step="5"></label>
+      <label class="f" for="mpg">Spalanie (mpg)<input id="mpg" type="number" min="5" step="1"></label>
+      <label class="f" for="fuel">Diesel za litr<span class="mon"><input id="fuel" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="charges">ULEZ, parking, inne / dzień<span class="mon"><input id="charges" type="number" min="0" step="0.5"></span></label>
+    </div>
+    <div class="sub">Stałe koszty vana na miesiąc</div>
+    <div class="grid4">
+      <label class="f" for="ins">Ubezpieczenie (hire &amp; reward)<span class="mon"><input id="ins" type="number" min="0" step="5"></span></label>
+      <label class="f" for="fin">Rata / leasing vana<span class="mon"><input id="fin" type="number" min="0" step="5"></span></label>
+      <label class="f" for="serv">Serwis, opony, naprawy<span class="mon"><input id="serv" type="number" min="0" step="5"></span></label>
+      <label class="f" for="oth">Inne (telefon, księgowa, tax)<span class="mon"><input id="oth" type="number" min="0" step="5"></span></label>
+    </div>
+    <p class="hint" style="margin-top:8px" id="vanNote"></p>
+  </section>
+
+  <section class="card" aria-labelledby="hTax">
+    <h2 id="hTax">Podatek i NI</h2>
+    <div class="grid3">
+      <label class="f" for="otherInc">Inne dochody w tym roku podatkowym<span class="mon"><input id="otherInc" type="number" min="0" step="100"></span></label>
+    </div>
+    <div class="grid3" style="margin-top:10px">
+      <label class="f" for="vatMode">VAT<select id="vatMode"><option value="none">Nie jestem na VAT</option><option value="std">VAT standardowy (odliczam VAT z kosztów)</option><option value="frs">Flat Rate Scheme</option></select></label>
+      <label class="f" for="frsPct" data-frs>Twój procent flat rate (%, z listy HMRC)<input id="frsPct" type="number" min="0" max="20" step="0.5" list="frsList"><datalist id="frsList"><option value="10">transport, kurierzy</option><option value="12">inna działalność</option><option value="16.5">limited cost trader</option></datalist></label>
+      <label class="toggle" for="frsFirst" data-frs style="align-self:end;margin:0 0 8px"><input type="checkbox" id="frsFirst"> Pierwszy rok na VAT (−1%)</label>
+    </div>
+    <p class="note" id="taxNote" style="margin-top:10px"></p>
+  </section>
+
+  <section class="card" aria-labelledby="hPlan">
+    <h2 id="hPlan">Cała oferta krok po kroku</h2>
+    <div class="tbl"><table><thead><tr><th>Etap</th><th class="r">Dni</th><th class="r">Zarobek</th><th class="r">Paliwo i van</th><th class="r">Podatek i NI</th><th class="r">Na rękę</th></tr></thead><tbody id="planT"></tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="hCmp">
+    <h2 id="hCmp">Porównanie ofert <button type="button" class="btn sm go" id="saveOffer">+ Zapisz tę ofertę</button></h2>
+    <p class="hint" id="cmpHint">Zapisz kilka ofert (np. DHL, Tradeteam, Amazon) i zobacz, która naprawdę daje więcej.</p>
+    <div class="tbl"><table class="cmp"><thead><tr><th>Oferta</th><th class="r">Stawka / dzień</th><th class="r">Na rękę / dzień</th><th class="r">Na godzinę</th><th class="r">Na miesiąc</th><th></th></tr></thead><tbody id="cmpT"></tbody></table></div>
+  </section>
+
+  <p class="note">Szacunek na stawkach 2026/27 (Anglia): kwota wolna £12,570, podatek 20% do £50,270 i 40% wyżej, Class 4 NI 6% (2% powyżej £50,270). Class 2 nie jest już obowiązkowa. Koszty vana odliczasz od dochodu, więc zmniejszają też podatek. To nie porada podatkowa: rozliczenie potwierdź z księgową.</p>
+</div>
+
+<div class="wrap" id="vLogin" hidden>
+  <section class="card" id="loginCard" aria-labelledby="hLogin">
+    <form class="loginc" id="yLogin">
+      <h2 id="hLogin">Zaloguj się</h2>
+      <p class="hint">Ten sam login co do panelu PRJ. Twoje koszty, payslipy i wpływy z banku są na serwerze i widzisz je tylko Ty.</p>
+      <label class="f" for="ylu">Login<input id="ylu" autocomplete="username" required></label>
+      <label class="f" for="ylp">Hasło<input id="ylp" type="password" autocomplete="current-password" required></label>
+      <div class="err" id="ylerr"></div>
+      <button class="btn go" id="ylbtn">Zaloguj</button>
+    </form>
+  </section>
+</div>
+<div class="wrap" id="vYear" hidden>
+  <div class="ybar row">
+    <label class="f" for="ySel" style="flex-direction:row;align-items:center;gap:6px">Rok podatkowy<select id="ySel" style="width:auto"></select></label>
+    <label class="f" for="yWho" style="flex-direction:row;align-items:center;gap:6px">Osoba<select id="yWho" style="width:auto"></select></label>
+    <span class="pill" id="ySrc"></span>
+    <span class="row" style="margin-left:auto"><button type="button" class="btn sm" id="yReload">↻ Odśwież</button><button type="button" class="btn sm" id="yCsv">⬇ CSV dla księgowej</button><button type="button" class="btn sm" id="yLogout" hidden>Wyloguj</button></span>
+  </div>
+
+  <section class="card" data-tab="sum" aria-labelledby="hAll">
+    <h2 id="hAll">Cały rok <span id="allLab" style="font:600 .95rem var(--body);text-transform:none;letter-spacing:0;color:var(--muted)"></span></h2>
+    <div class="kpi" id="allKpi" style="margin-bottom:12px"></div>
+    <div class="tbl"><table><thead><tr><th></th><th class="r">Stan na dziś</th><th class="r">Prognoza do 5.04</th></tr></thead><tbody id="allT"></tbody></table></div>
+    <div class="goal" id="goalBox"></div>
+    <div class="grid3" style="margin-top:12px"><label class="f" for="yGoal">Mój cel na rękę w roku<span class="mon"><input id="yGoal" type="number" min="0" step="1000"></span></label><label class="f" for="yPen">Wpłaty na prywatną emeryturę w tym roku (netto, np. PensionBee)<span class="mon"><input id="yPen" type="number" min="0" step="10"></span></label></div>
+    <p class="note" id="allNote" style="margin-top:10px"></p>
+  </section>
+
+  <section class="card" data-tab="sum" aria-labelledby="hAdv">
+    <h2 id="hAdv">Doradca <button type="button" class="btn sm" id="advShow" hidden></button></h2>
+    <p class="hint" id="advSum" style="margin-bottom:12px"></p>
+    <div id="advL" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <section class="card" data-tab="dhl" aria-labelledby="hDhl">
+    <h2 id="hDhl">Dziennik dni</h2>
+    <p class="hint" style="margin-bottom:12px">Po każdym dniu przepisz z licznika „After start”: mile, czas jazdy i mpg. Liczę paliwo, stałe koszty vana, VAT z flat rate i ile odłożyć na podatek. To szacunek dnia: do rozliczenia roku wchodzą dopiero wpływy z wyciągu.</p>
+    <div class="kpi" id="dKpi" style="margin-bottom:12px"></div>
+    <form class="addf dform" id="dForm" novalidate>
+      <label class="f" for="dDate">Data<input id="dDate" type="date" required></label>
+      <label class="f" for="dCo">Firma<input id="dCo" maxlength="40"></label>
+      <label class="f" for="dRate">Zarobek za dzień (bez VAT)<span class="mon"><input id="dRate" type="number" min="0" step="1" inputmode="decimal"></span></label>
+      <label class="toggle" for="dVat" style="align-self:end;margin:0 0 8px"><input type="checkbox" id="dVat"> + VAT na fakturze</label>
+      <label class="f" for="dMi">Mile (licznik)<input id="dMi" type="number" min="0" step="1" inputmode="decimal"></label>
+      <label class="f" for="dDrv">Czas jazdy (g:mm)<input id="dDrv" placeholder="4:17" inputmode="numeric" maxlength="5"></label>
+      <label class="f" for="dMpg">Średnie mpg<input id="dMpg" type="number" min="1" step="0.1" inputmode="decimal"></label>
+      <label class="f" for="dFuel">Diesel za litr<span class="mon"><input id="dFuel" type="number" min="0" step="0.01" inputmode="decimal"></span></label>
+      <label class="f" for="dStart">Start pracy<input id="dStart" type="time"></label>
+      <label class="f" for="dEnd">Koniec pracy<input id="dEnd" type="time"></label>
+      <label class="f" for="dStops">Stopy<input id="dStops" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label class="f" for="dPar">Paczki<input id="dPar" type="number" min="0" step="1" inputmode="numeric"></label>
+      <label class="f wide" for="dNote">Notatka (np. trasa RG2, korki na A33)<input id="dNote" maxlength="140"></label>
+      <div class="act"><button class="btn go" id="dBtn">Zapisz dzień</button><button type="button" class="btn sm" id="dCancel" hidden>Anuluj edycję</button><span class="hint" id="dFixHint"></span></div>
+    </form>
+    <div class="dprev" id="dPrev" aria-live="polite"></div>
+    <div class="grid3" style="margin-bottom:12px"><label class="f" for="dTax">Odkładam na podatek i NI (% zysku)<input id="dTax" type="number" min="0" max="60" step="1"></label></div>
+    <div class="tbl list"><table><thead><tr><th>Data</th><th class="r">Mile</th><th class="r">Jazda</th><th class="r">mpg</th><th class="r">Paliwo</th><th class="r">Zarobek</th><th class="r">Zostaje</th><th class="r">£/h</th><th></th></tr></thead><tbody id="dT"></tbody></table></div>
+  </section>
+
+  <section class="card" data-tab="money" aria-labelledby="hYear">
+    <h2 id="hYear">Firma (self-employed)</h2>
+    <div class="kpi" id="yKpi"></div>
+    <p class="note" id="yProj" style="margin-top:12px"></p>
+  </section>
+
+  <section class="card" data-tab="money" aria-labelledby="hUnp">
+    <h2 id="hUnp">Faktury niezapłacone</h2>
+    <div id="unpBox"></div>
+  </section>
+
+  <section class="card" data-tab="sum" aria-labelledby="hSave">
+    <h2 id="hSave">Na co odkładać</h2>
+    <div class="save3" id="ySave"></div>
+    <div class="sub">Terminy płatności do HMRC</div>
+    <div class="tbl"><table class="due"><thead><tr><th>Termin</th><th>Za co</th><th class="r">Kwota</th></tr></thead><tbody id="yDue"></tbody></table></div>
+  </section>
+
+  <section class="card" data-tab="vat" aria-labelledby="hVat">
+    <h2 id="hVat">VAT: deklaracja kwartalna (VAT 100)</h2>
+    <div class="row" style="margin-bottom:12px"><label class="f" for="vatQ" style="flex-direction:row;align-items:center;gap:6px">Kwartał<select id="vatQ" style="width:auto"></select></label><label class="f" for="vatReg" style="flex-direction:row;align-items:center;gap:6px">Rejestracja VAT<input id="vatReg" type="date" style="width:auto"></label><button type="button" class="btn sm" id="vatCsv">⬇ VAT 100 do programu MTD (CSV)</button><label class="btn sm" for="vatRepIn" style="cursor:pointer">⬆ Raporty VAT od księgowej (PDF, można kilka)<input id="vatRepIn" type="file" accept=".pdf,application/pdf" multiple hidden></label></div>
+    <div id="vatBox"></div>
+    <div id="vatHistBox" hidden><div class="sub">Historia deklaracji (z raportów księgowej)</div>
+    <div class="tbl"><table><thead><tr><th>Kwartał</th><th class="r">Box 6 sprzedaż</th><th class="r">Box 1 VAT</th><th class="r">Box 5 zapłacone</th><th></th></tr></thead><tbody id="vatHist"></tbody></table></div></div>
+  </section>
+
+  <section class="card" data-tab="vat" aria-labelledby="hWorth">
+    <h2 id="hWorth">Czy VAT się opłaca?</h2>
+    <div class="grid3" style="margin-bottom:12px"><label class="f" for="vatFee">Księgowa za VAT miesięcznie<span class="mon"><input id="vatFee" type="number" min="0" step="1"></span></label></div>
+    <div id="vatWorth"></div>
+  </section>
+
+  <section class="card" data-tab="money" aria-labelledby="hCost">
+    <h2 id="hCost">Co ile kosztuje <button type="button" class="btn sm go" id="yToCalc">Przenieś średnie do kalkulatora</button></h2>
+    <div class="kpi" id="yPer" style="margin-bottom:12px"></div>
+    <div id="yCats"></div>
+  </section>
+
+  <section class="card" data-tab="money" aria-labelledby="hExp">
+    <h2 id="hExp">Wydatki</h2>
+    <form class="addf" id="expForm">
+      <label class="f" for="eDate">Data<input id="eDate" type="date" required></label>
+      <label class="f" for="eCat">Na co<select id="eCat"></select></label>
+      <label class="f" for="eAmt">Kwota z VAT<span class="mon"><input id="eAmt" type="number" min="0.01" step="0.01" required placeholder="0.00"></span></label>
+      <label class="f wide" for="eNote">Notatka (np. Shell M4)<input id="eNote" maxlength="120"></label>
+      <button class="btn go" id="eBtn">+ Dodaj</button>
+    </form>
+    <div class="row" style="margin-bottom:12px"><label class="btn sm" for="bankIn" style="cursor:pointer">⬆ Wczytaj koszty z wyciągu (CSV lub PDF)<input id="bankIn" type="file" accept=".csv,.pdf,text/csv,text/plain,application/pdf" hidden></label><span class="hint">Wydatki dostają kategorię same. Z wpływów biorę tylko przelewy od firm (np. 1st Class Logistics), pomijam Twoje przelewy i osoby prywatne. Firmy, które już są w Diary, pomijam, żeby nie liczyć ich dwa razy. Wszystko sprawdzisz przed dodaniem.</span></div>
+    <div class="imp" id="imp" hidden>
+      <div class="row" style="justify-content:space-between;margin-bottom:8px"><b id="impSum"></b><span class="row"><button type="button" class="btn sm" id="impShow" hidden>Pokaż ukryte</button><button type="button" class="btn sm" id="impAll">Zaznacz domyślnie</button><button type="button" class="btn sm" id="impNo">Anuluj</button><button type="button" class="btn sm go" id="impGo">Dodaj zaznaczone</button></span></div>
+      <div class="tbl list"><table><thead><tr><th></th><th>Data</th><th>Opis z banku</th><th>Kategoria</th><th class="r">Kwota</th></tr></thead><tbody id="impT"></tbody></table></div>
+    </div>
+    <div class="tbl list"><table><thead><tr><th>Data</th><th>Na co</th><th>Notatka</th><th class="r">Kwota</th><th></th></tr></thead><tbody id="expT"></tbody></table></div>
+  </section>
+
+  <section class="card" data-tab="money" aria-labelledby="hInc">
+    <h2 id="hInc">Przychody</h2>
+    <p class="hint" id="incHint" style="margin-bottom:10px"></p>
+    <form class="addf" id="incForm" hidden>
+      <label class="f" for="iDate">Data<input id="iDate" type="date" required></label>
+      <label class="f" for="iCli">Klient<input id="iCli" maxlength="40" required placeholder="np. GMT"></label>
+      <label class="f" for="iAmt">Kwota bez VAT<span class="mon"><input id="iAmt" type="number" min="0.01" step="0.01" required></span></label>
+      <label class="f wide" for="iMi">Mile (opcjonalnie)<input id="iMi" type="number" min="0" step="1"></label>
+      <button class="btn go">+ Dodaj</button>
+    </form>
+    <div class="tbl list"><table><thead><tr><th>Data</th><th>Klient</th><th>Trasa</th><th class="r">Mile</th><th class="r">Bez VAT</th><th class="r">Z VAT</th><th></th></tr></thead><tbody id="incT"></tbody></table></div>
+  </section>
+
+  <section class="card" data-tab="paye" aria-labelledby="hPaye">
+    <h2 id="hPaye">Praca na etacie (PAYE, agencja)</h2>
+    <p class="hint" style="margin-bottom:12px">Osobno od self-employed: nie wchodzi do obrotu, kosztów ani VAT. Podatek i NI z etatu pobiera agencja.</p>
+    <div class="kpi" id="pKpi" style="margin-bottom:12px"></div>
+    <div class="row" style="margin-bottom:12px"><label class="btn sm" for="payIn" style="cursor:pointer">⬆ Wczytaj payslip (PDF)<input id="payIn" type="file" accept=".pdf,application/pdf" multiple hidden></label><label class="btn sm" for="p60In" style="cursor:pointer">⬆ Wczytaj P60 / podsumowanie roku (Excel, CSV)<input id="p60In" type="file" accept=".xlsx,.csv,text/csv" hidden></label><span class="hint">Możesz zaznaczyć kilka naraz. Payslipy, w których kwoty się zgadzają, dodam od razu; resztę pokażę w formularzu do sprawdzenia.</span></div>
+    <form class="addf payf" id="payForm">
+      <label class="f" for="pDate">Data wypłaty<input id="pDate" type="date" required></label>
+      <label class="f" for="pAg">Agencja / pracodawca<input id="pAg" maxlength="60" placeholder="np. A&amp;G Resourcing"></label>
+      <label class="f" for="p_gross">Brutto (gross pay)<span class="mon"><input id="p_gross" type="number" min="0" step="0.01" required></span></label>
+      <label class="f" for="p_tax">Podatek (PAYE tax)<span class="mon"><input id="p_tax" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="p_ni">NI<span class="mon"><input id="p_ni" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="p_pension">Emerytura (pension)<span class="mon"><input id="p_pension" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="p_net">Na rękę (net pay)<span class="mon"><input id="p_net" type="number" step="0.01"></span></label>
+      <button class="btn go">+ Dodaj payslip</button>
+    </form>
+    <div class="tbl list"><table><thead><tr><th>Data</th><th>Agencja</th><th class="r">Brutto</th><th class="r">Podatek</th><th class="r">NI</th><th class="r">Emerytura</th><th class="r">Na rękę</th><th></th></tr></thead><tbody id="payT"></tbody></table></div>
+    <div id="p60Box" hidden><div class="sub">Podsumowania roczne (P60, od początku roku)</div>
+    <div class="tbl"><table><thead><tr><th>Rok</th><th class="r">Brutto</th><th class="r">Podatek</th><th class="r">NI</th><th class="r">Emerytura</th><th class="r">Na rękę</th><th></th></tr></thead><tbody id="p60T"></tbody></table></div></div>
+    <p class="note" id="pNote" style="margin-top:10px"></p>
+  </section>
+
+  <section class="card" data-tab="money" aria-labelledby="hMon">
+    <h2 id="hMon">Miesiąc po miesiącu</h2>
+    <div class="tbl"><table><thead><tr><th>Miesiąc</th><th class="r">Dni</th><th class="r">Obrót bez VAT</th><th class="r">Koszty</th><th class="r">Zysk</th><th class="r">Na rękę</th></tr></thead><tbody id="monT"></tbody></table></div>
+  </section>
+
+  <section class="card" data-tab="set" aria-labelledby="hHist">
+    <h2 id="hHist">Lata podatkowe</h2>
+    <div class="row" style="margin-bottom:12px"><label class="btn sm go" for="saIn" style="cursor:pointer">⬆ Dodaj zeznania z poprzednich lat (PDF)<input id="saIn" type="file" accept=".pdf,application/pdf" multiple hidden></label><span class="hint">Tax return, tax computation od księgowej albo SA302 z HMRC. Odczytam rok, obrót, koszty, zysk, etat, podatek i zapłacone zaliczki.</span></div>
+    <div class="tbl"><table><thead><tr><th>Rok</th><th class="r">Obrót</th><th class="r">Koszty</th><th class="r">Zysk z firmy</th><th class="r">Etat brutto</th><th class="r">Podatek i NI</th><th class="r">Na rękę</th><th class="r">Na miesiąc</th></tr></thead><tbody id="histT"></tbody></table></div>
+    <div class="sub">Wczytane dokumenty</div>
+    <div class="row" id="docL" style="margin-bottom:6px"></div>
+    <div class="sub">Ustawienia</div>
+    <div class="grid3">
+      <label class="f" for="yPoa">Zaliczki już zapłacone na wybrany rok<span class="mon"><input id="yPoa" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="yQ">Kwartały VAT kończą się w<select id="yQ"><option value="3">marzec, czerwiec, wrzesień, grudzień</option><option value="1">styczeń, kwiecień, lipiec, październik</option><option value="2">luty, maj, sierpień, listopad</option></select></label>
+      <label class="f" for="yOi">Przychód bez VAT przed dziennikiem (<span id="yOpenLab"></span>)<span class="mon"><input id="yOi" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="yOc">Koszty przed dziennikiem<span class="mon"><input id="yOc" type="number" min="0" step="0.01"></span></label>
+      <label class="f" for="yBasis">Przychód liczę<select id="yBasis"><option value="cash">po dacie wpływu na konto (cash basis, domyślnie)</option><option value="work">po dacie runu (traditional)</option></select></label>
+      <label class="f" for="yPay">Firmy, które Ci płacą (po przecinku)<input id="yPay" maxlength="300"></label>
+      <label class="f" for="yHpd">Godzin dziennie (do stawki za godzinę)<input id="yHpd" type="number" min="1" max="16" step="0.25"></label>
+    </div>
+    <p class="note" style="margin-top:8px">VAT, procent flat rate i inne dochody biorę z zakładki Kalkulator (sekcja Podatek i NI).</p>
+    <div class="sub">Zapamiętane jako prywatne (pomijam przy wczytywaniu wyciągu)</div>
+    <div class="row" id="privList"></div>
+    <div class="row" id="localTools" style="margin-top:10px">
+      <label class="btn sm" for="csvIn" style="cursor:pointer">Wczytaj CSV z panelu (Diary / Spending)<input id="csvIn" type="file" accept=".csv,text/csv" multiple hidden></label>
+      <button type="button" class="btn sm" id="bkOut">Kopia zapasowa</button>
+      <label class="btn sm" for="bkIn" style="cursor:pointer">Wczytaj kopię<input id="bkIn" type="file" accept=".json,application/json" hidden></label>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gbp=(n,d)=>{n=+n||0;const k=d??(Math.abs(n)>=100?0:2);return (n<0?'−':'')+'£'+Math.abs(n).toLocaleString('en-GB',{minimumFractionDigits:k,maximumFractionDigits:k})};
+const DEF={company:'DHL',phases:[{name:'Trening',rate:150,days:2,van:false},{name:'Praca na własnym vanie',rate:220,days:5,van:true}],dpw:5,hpd:8.75,wpy:47,miles:120,mpg:30,fuel:1.45,charges:0,ins:160,fin:0,serv:90,oth:40,otherInc:0,vatMode:'frs',frsPct:10,frsFirst:false,offers:[]};
+let S;try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('prj_calc')||'null')||{})}catch(e){S={...DEF}}
+if(S.vat===true&&!S.vatMode)S.vatMode='std';delete S.vat;
+const save=()=>{try{localStorage.setItem('prj_calc',JSON.stringify(S))}catch(e){}};
+
+/* ---------- tax 2026/27, England: on the year's profit, then shared out per working day ---------- */
+function incomeTax(x){x=Math.max(0,x);let pa=12570;if(x>100000)pa=Math.max(0,12570-(x-100000)/2);const t=Math.max(0,x-pa);const b=Math.min(t,37700),h=Math.min(Math.max(0,t-37700),125140-pa-37700>0?125140-37700-pa:0),a=Math.max(0,t-b-h);return b*.2+h*.4+a*.45}
+function class4(p){p=Math.max(0,p);return Math.max(0,Math.min(p,50270)-12570)*.06+Math.max(0,p-50270)*.02}
+/* Flat Rate Scheme: you charge 20% VAT, pay HMRC a flat % of the VAT-inclusive invoice and keep the difference (it counts as income). No VAT back on fuel or costs. */
+const frsPctNow=()=>Math.max(0,(+S.frsPct||10)-(S.frsFirst?1:0));
+const vatKeep=rate=>S.vatMode==='frs'?rate*0.2-rate*1.2*frsPctNow()/100:0;
+/* one working day on your own van */
+function dayCosts(){const workDays=Math.max(1,(+S.dpw||5)*(+S.wpy||46)/12),litres=(+S.miles||0)/Math.max(1,+S.mpg||30)*4.54609;let fuel=litres*(+S.fuel||0);if(S.vatMode==='std')fuel=fuel/1.2;
+  const fixed=((+S.ins||0)+(+S.fin||0)+(+S.serv||0)+(+S.oth||0))/workDays;return {fuel,fixed,charges:+S.charges||0,workDays,litres}}
+function calc(){const C=dayCosts(),main=S.phases.filter(p=>p.van).slice(-1)[0]||S.phases.slice(-1)[0]||{rate:0,van:true};
+  const yearDays=(+S.dpw||5)*(+S.wpy||46),costOf=p=>p.van?C.fuel+C.fixed+C.charges:0;
+  const profitDay=(+main.rate||0)+vatKeep(+main.rate||0)-costOf(main),yearProfit=profitDay*yearDays,other=+S.otherInc||0;
+  const tax=Math.max(0,incomeTax(yearProfit+other)-incomeTax(other)+class4(yearProfit)),taxRate=yearProfit>0?tax/yearProfit:0;
+  const taxDay=Math.max(0,profitDay)*taxRate,netDay=profitDay-taxDay;
+  return {C,main,yearDays,profitDay,yearProfit,tax,taxRate,taxDay,netDay,costOf}}
+
+function render(){const R=calc(),C=R.C,m=R.main,rate=+m.rate||0;
+  $('netDay').innerHTML=`${gbp(R.netDay,0)}<small>/ dzień</small>`;
+  $('netSub').innerHTML=`Ze stawki <b>${gbp(rate,0)}</b>${S.vatMode!=='none'?` (na fakturze ${gbp(rate*1.2,0)} z VAT)`:''} zostaje ${rate?Math.round(R.netDay/rate*100):0}% · <b>${gbp(R.netDay/(+S.hpd||10),2)}</b> na godzinę${S.vatMode==='frs'?` · z VAT na flat rate zostaje Ci <b>${gbp(vatKeep(rate),2)}</b> dziennie`:''}`;
+  const parts=[['Na rękę',Math.max(0,R.netDay),'var(--green)'],['Podatek i NI',R.taxDay,'var(--tax)'],['Paliwo',m.van?C.fuel:0,'var(--fuel)'],['Van (stałe koszty)',m.van?C.fixed:0,'var(--van)'],['ULEZ, parking',m.van?C.charges:0,'#B0306A']].filter(p=>p[1]>0.005),tot=parts.reduce((t,p)=>t+p[1],0)||1;
+  $('stack').innerHTML=parts.map(p=>`<i style="width:${p[1]/tot*100}%;background:${p[2]}"></i>`).join('');
+  $('legend').innerHTML=parts.map(p=>`<span><i style="background:${p[2]}"></i>${p[0]} <b>${gbp(p[1],2)}</b></span>`).join('');
+  const wk=R.netDay*(+S.dpw||5);
+  $('per').innerHTML=[[gbp(wk,0),'na rękę tygodniowo','dark'],[gbp(wk*(+S.wpy||46)/12,0),'średnio miesięcznie',''],[gbp(R.netDay*R.yearDays,0),`rocznie (${R.yearDays} dni)`,''],[gbp(R.tax/12,0),'odkładaj na podatek / mies.','']].map(([b,s,c])=>`<div class="tile ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+  $('warn').innerHTML=R.netDay<=0?'<div class="warn">Przy tych kosztach ta stawka nic nie zostawia. Policz jeszcze raz mile i koszty vana albo negocjuj stawkę.</div>':(R.netDay/(+S.hpd||10)<12.21?`<div class="warn">Na godzinę wychodzi ${gbp(R.netDay/(+S.hpd||10),2)}, czyli mniej niż płaca minimalna (£12.21). Warto negocjować.</div>`:'');
+  $('vanNote').textContent=`Paliwo: ${C.litres.toFixed(1)} l dziennie = ${gbp(C.fuel,2)}${S.vatMode==='std'?' bez VAT':S.vatMode==='frs'?' z VAT (na flat rate nie odliczasz)':''}. Stałe koszty rozkładam na ${C.workDays.toFixed(1)} dni pracy w miesiącu = ${gbp(C.fixed,2)} dziennie.`;
+  $('taxNote').innerHTML=`Przy ${gbp(R.yearProfit,0)} zysku w roku${+S.otherInc?` i ${gbp(+S.otherInc,0)} innych dochodów`:''} podatek i NI to około <b>${gbp(R.tax,0)}</b> rocznie, czyli <b>${(R.taxRate*100).toFixed(1)}%</b> zysku. ${S.vatMode==='std'?`Na każdej fakturze doliczasz 20% VAT (${gbp(rate*0.2,2)} za dzień), który oddajesz HMRC, minus VAT z paliwa i kosztów.`:S.vatMode==='frs'?`<b>Flat rate ${frsPctNow()}%:</b> fakturujesz ${gbp(rate*1.2,2)} za dzień, HMRC dostaje ${frsPctNow()}% z tego, czyli ${gbp(rate*1.2*frsPctNow()/100,2)}, a ${gbp(vatKeep(rate),2)} zostaje Tobie (to dochód, wliczony w podatek). Rocznie to około <b>${gbp(vatKeep(rate)*R.yearDays,0)}</b> więcej przed podatkiem. VAT z paliwa i kosztów nie odzyskujesz (wyjątek: zakup sprzętu powyżej £2,000). Limited cost trader (16.5%) dotyczy tylko firm, które prawie nic nie kupują; kurier z własnym vanem zwykle liczy paliwo jako towar, więc zostaje przy 10%. Gdy masz dużo kosztów z VAT (nowy van, drogie naprawy), standardowy VAT może się bardziej opłacać.`:'Jeśli Twój obrót z 12 miesięcy przekroczy £90,000, musisz się zarejestrować do VAT.'}`;
+  // the whole offer, phase by phase
+  let T={d:0,g:0,c:0,t:0,n:0};
+  $('planT').innerHTML=S.phases.map(p=>{const d=+p.days||0,g=d*((+p.rate||0)+vatKeep(+p.rate||0)),c=d*R.costOf(p),t=Math.max(0,g-c)*R.taxRate,n=g-c-t;T.d+=d;T.g+=g;T.c+=c;T.t+=t;T.n+=n;
+    return `<tr><td>${esc(p.name||'Etap')}${p.van?'':' <span class="minus">(bez vana)</span>'}</td><td class="r">${d}</td><td class="r">${gbp(g,0)}</td><td class="r minus">−${gbp(c,0)}</td><td class="r minus">−${gbp(t,0)}</td><td class="r net">${gbp(n,0)}</td></tr>`}).join('')+`<tr class="tot"><td>Razem</td><td class="r">${T.d}</td><td class="r">${gbp(T.g,0)}</td><td class="r">−${gbp(T.c,0)}</td><td class="r">−${gbp(T.t,0)}</td><td class="r net">${gbp(T.n,0)}</td></tr>`;
+  renderCmp(R);save();if(typeof render2==='function')render2()}
+
+function renderPhases(){$('phases').innerHTML=S.phases.map((p,i)=>`<div class="ph"><label class="f nm" for="pn${i}">Etap<input id="pn${i}" data-i="${i}" data-f="name" value="${esc(p.name)}" maxlength="40"></label>
+  <label class="f" for="pr${i}">Stawka za dzień<span class="mon"><input id="pr${i}" data-i="${i}" data-f="rate" type="number" min="0" step="5" value="${esc(p.rate)}"></span></label>
+  <label class="f" for="pd${i}">Dni<input id="pd${i}" data-i="${i}" data-f="days" type="number" min="0" step="1" value="${esc(p.days)}"></label>
+  <label class="ownv" for="pv${i}"><input id="pv${i}" type="checkbox" data-i="${i}" data-f="van" ${p.van?'checked':''}>Własny van</label>
+  <button type="button" class="x" data-del="${i}" aria-label="Usuń etap" ${S.phases.length<2?'disabled':''}>✕</button></div>`).join('')}
+$('phases').addEventListener('input',e=>{const t=e.target;if(t.dataset.f==null)return;const p=S.phases[+t.dataset.i];p[t.dataset.f]=t.type==='checkbox'?t.checked:t.type==='number'?+t.value:t.value;render()});
+$('phases').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;S.phases.splice(+b.dataset.del,1);renderPhases();render()});
+$('addPh').onclick=()=>{S.phases.push({name:'Kolejny etap',rate:200,days:5,van:true});renderPhases();render()};
+
+/* ---------- compare offers ---------- */
+function renderCmp(R){const all=S.offers.slice(),cur={name:(S.company||'Ta oferta')+' (teraz)',rate:+R.main.rate||0,net:R.netDay,hour:R.netDay/(+S.hpd||10),month:R.netDay*(+S.dpw||5)*(+S.wpy||46)/12,cur:true};
+  const rows=all.concat([cur]),best=Math.max(...rows.map(r=>r.month));
+  $('cmpT').innerHTML=rows.map((r,i)=>`<tr class="${r.month===best&&rows.length>1?'best':''}"><td><b>${esc(r.name)}</b></td><td class="r">${gbp(r.rate,0)}</td><td class="r net">${gbp(r.net,0)}</td><td class="r">${gbp(r.hour,2)}</td><td class="r"><b>${gbp(r.month,0)}</b></td><td>${r.cur?'':`<button type="button" class="x" data-delo="${i}" aria-label="Usuń ofertę">✕</button>`}</td></tr>`).join('');
+  $('cmpHint').hidden=S.offers.length>0}
+$('saveOffer').onclick=()=>{const R=calc(),name=(S.company||'Oferta').trim();S.offers=S.offers.filter(o=>o.name!==name);S.offers.push({name,rate:+R.main.rate||0,net:R.netDay,hour:R.netDay/(+S.hpd||10),month:R.netDay*(+S.dpw||5)*(+S.wpy||46)/12});render();toast(`Zapisane: ${name}. Zmień stawkę i firmę, żeby porównać inną ofertę.`)};
+$('cmpT').addEventListener('click',e=>{const b=e.target.closest('[data-delo]');if(!b)return;S.offers.splice(+b.dataset.delo,1);render()});
+
+/* ---------- simple fields ---------- */
+['company','dpw','hpd','wpy','miles','mpg','fuel','charges','ins','fin','serv','oth','otherInc'].forEach(k=>{const el=$(k);el.value=S[k];el.addEventListener('input',()=>{S[k]=el.type==='number'?+el.value:el.value;render()})});
+function vatUI(){document.querySelectorAll('[data-frs]').forEach(e=>e.hidden=S.vatMode!=='frs')}
+$('vatMode').value=S.vatMode||'none';$('frsPct').value=String(S.frsPct||10);$('frsFirst').checked=!!S.frsFirst;vatUI();
+$('vatMode').onchange=()=>{S.vatMode=$('vatMode').value;vatUI();render()};$('frsPct').oninput=()=>{S.frsPct=+$('frsPct').value;render()};$('frsFirst').onchange=()=>{S.frsFirst=$('frsFirst').checked;render()};
+let tt=0;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+if(!S.seeded){S.seeded=1;if(!S.offers.length)S.offers=[{name:'Ubiegły rok 2025/26',rate:190,net:124.75,hour:14.26,month:2443},{name:'GMT (dziennik, listopad)',rate:297,net:193,hour:22.06,month:3772}]}
+renderPhases();render();
+</script>
+<script>
+"use strict";
+/* ---------- My tax year: runs (income) and every pound spent, from the PRJ panel or kept on this device ---------- */
+const API='https://prj-api.patryk-forgiel.workers.dev',TKEY='prj_admin_key';
+const SERVER=/^https?:$/.test(location.protocol)&&!/claude/i.test(location.hostname);
+const NOCOST=new Set(['HMRC VAT','HMRC Tax','Van HP capital','Fines']),ONEOFF=new Set(['Capital purchase']);
+const CATS=['HMRC VAT','HMRC Tax','Van HP capital','Fines','Fuel','ULEZ','Congestion Charge','Dart Charge','Parking','Tolls','Repairs & service','Tyres','Van wash','Equipment','Website & office','Phone','Insurance','Road tax','Van finance','Van HP interest','Capital purchase','Accountant','Other'];
+const CPL={'HMRC VAT':'Opłata VAT do HMRC (nie koszt)','HMRC Tax':'Podatek / zaliczka do HMRC (nie koszt)','Van HP capital':'Rata HP vana bez odsetek (nie koszt)','Fines':'Mandat / PCN (nie koszt)','Van HP interest':'Odsetki od HP vana','Capital purchase':'Zakup vana / sprzętu (capital allowance)','Fuel':'Paliwo','ULEZ':'ULEZ','Congestion Charge':'Congestion Charge','Dart Charge':'Dart Charge','Parking':'Parking','Tolls':'Opłaty drogowe','Repairs & service':'Serwis i naprawy','Tyres':'Opony','Van wash':'Myjnia','Equipment':'Sprzęt','Website & office':'Strona, domena, biuro','Phone':'Telefon','Insurance':'Ubezpieczenie','Road tax':'Road tax (VED, DVLA)','Van finance':'Leasing vana (contract hire)','Accountant':'Księgowa','Other':'Inne'};
+const VARC=new Set(['Fuel','ULEZ','Congestion Charge','Dart Charge','Parking','Tolls','Van wash']);
+const VATC=new Set(['Fuel','Repairs & service','Tyres','Van wash','Equipment','Website & office','Phone','Accountant','Parking','Capital purchase']);
+const cl=c=>CPL[c]||c;
+const MON=['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+const SEED={me:'Patryk',vatQ:3,inc:[
+ ['2026-11-02','Tradeteam','Dominos Stamford Hill → Holloway Road',170,103],['2026-11-03','Tradeteam',"O'Neills Maidenhead",120,33],['2026-11-03','Tradeteam','3 dropy',190,93],
+ ['2026-11-04','Tradeteam','1 drop',140,63],['2026-11-04','Tradeteam','3 dropy',200,91],['2026-11-05','Tradeteam','3 dropy',200,90],['2026-11-05','Tradeteam','1 drop',120,76],
+ ['2026-11-05','Tradeteam','1 drop',140,83],['2026-11-06','Tradeteam','3 dropy',200,92],['2026-11-09','Tradeteam','3 dropy',180,49],['2026-11-09','Tradeteam','1 drop',120,77]
+].map((r,i)=>({id:'s'+i,date:r[0],client:r[1],job:r[2],amount:r[3],miles:r[4],who:'Patryk'})),
+exp:[['2026-11-02','Fuel',20],['2026-11-02','ULEZ',12.5],['2026-11-03','Fuel',35],['2026-11-03','ULEZ',12.5],['2026-11-04','ULEZ',12.5],['2026-11-04','Fuel',35],
+ ['2026-11-05','Fuel',60],['2026-11-05','ULEZ',12.5],['2026-11-06','Fuel',20],['2026-11-06','ULEZ',12.5],['2026-11-09','Fuel',30],['2026-11-09','ULEZ',12.5]
+].map((r,i)=>({id:'e'+i,date:r[0],category:r[1],amount:r[2],notes:'',who:'Patryk'})),
+hist:{2024:{turn:46454.15,costs:15878.37,profit:30575.78,tax:4737.90,src:'z zeznania'},2025:{turn:53715.60,costs:13143.27,profit:35200.77,tax:5884,src:'szacunek, przed zeznaniem'}},
+poa:{2025:4664.10},dhl:[{id:'d1',date:'2026-11-16',co:'DHL',rate:220,vat:true,miles:63,drive:257,mpg:27.1,fuel:1.45,start:'',end:'',stops:null,parcels:null,note:'Pierwszy dzień'}]};
+const normY=(st,who)=>{const y=Object.assign({goal:40000,inc:[],exp:[],hist:{},poa:{},dhl:[],paye:[],priv:[],seen:[],open:{}},JSON.parse(JSON.stringify(st||{})));y.inc=y.inc.filter(x=>x.bank);y.exp=(y.exp||[]).filter(x=>!/^e\d{1,2}$/.test(x.id));if(who)y.me=who;return y};
+let Y=null;
+if(!SERVER){try{Y=JSON.parse(localStorage.getItem('prj_year')||'null')}catch(e){}if(!Y||!Y.inc)Y=JSON.parse(JSON.stringify(SEED));if(Y.goal==null)Y.goal=40000}else Y=normY({},'');
+/* on the PRJ site everything private lives on the server behind the login; nothing personal stays in this browser */
+let rev=0,pushT=0,pushing=false,who='';
+function saveY(){if(!SERVER){try{localStorage.setItem('prj_year',JSON.stringify(Y))}catch(e){}return}if(!token||!who)return;clearTimeout(pushT);pushT=setTimeout(push,600)}
+async function push(){if(pushing){pushT=setTimeout(push,400);return}pushing=true;
+  try{const r=await call({action:'admin_selfemp_save',rev,state:Y});if(r.ok)rev=r.rev;
+    else if(r.conflict){rev=r.rev;if(r.state){Y=normY(r.state,who);render2()}toast('Na innym urządzeniu zapisano nowsze dane. Pokazuję je, powtórz ostatnią zmianę.')}
+    else if(needLogin(r.message))logout('Zaloguj się ponownie.');else toast(r.message||'Nie udało się zapisać.')}
+  catch(e){toast('Brak połączenia. Ostatnia zmiana nie jest zapisana, spróbuj za chwilę.')}finally{pushing=false}}
+let token='',mode=SERVER?'server':'local',srv={inc:[],exp:[],people:[]},view={y:null};
+
+/* tax year: 6 April to 5 April */
+const tyOf=d=>{const y=+d.slice(0,4);return d.slice(5)>='04-06'?y:y-1};
+const tyLab=y=>`${y}/${String((y+1)%100).padStart(2,'0')}`;
+const iso=t=>new Date(t).toISOString().slice(0,10);
+const today=()=>{const n=new Date();return new Date(n.getTime()-n.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const dPL=d=>{const [y,m,dd]=d.split('-');return `${+dd}.${m}.${y}`};
+
+/* money from the bank arrives with VAT; the net amount always follows the VAT setting */
+const vatOn=()=>S.vatMode&&S.vatMode!=='none';
+const bankNet=x=>x.bank&&x.gross?Object.assign({},x,{amount:Math.round((vatOn()?x.gross/1.2:x.gross)*100)/100}):x;
+function incAll(){return (mode==='server'?srv.inc.concat(Y.inc.filter(x=>x.bank)):Y.inc).map(x=>Object.assign(bankNet(x),{diary:!!(x.diary||(!x.bank&&/^[sc]\d/.test(String(x.id))))}))}
+const cashBasis=()=>(Y.basis||'cash')==='cash';
+/* costs are your own: from bank statements and what you add here; the panel's Spending list is not used */
+function expAll(){return Y.exp}
+function people(){const s=new Set([Y.me||'Patryk']);(mode==='server'?srv.people:[]).forEach(p=>s.add(p));incAll().forEach(x=>x.who&&s.add(x.who));expAll().forEach(x=>x.who&&s.add(x.who));return [...s]}
+
+function yearData(y){const me=Y.me,cash=cashBasis(),all=incAll().filter(x=>x.who===me&&tyOf(x.date)===y),exp=expAll().filter(x=>x.who===me&&tyOf(x.date)===y);
+  /* cash basis (the default for sole traders): income counts on the day the money arrives, so Diary runs are work done, not income */
+  const inc=cash?all.filter(x=>!x.diary):all,diaryRuns=all.filter(x=>x.diary),work=diaryRuns.length?diaryRuns:inc;
+  const op=((Y.open||{})[me+'|'+y])||{inc:0,cost:0};
+  const vm=S.vatMode||'none',pct=frsPctNow()/100,turnD=inc.reduce((t,x)=>t+(+x.amount||0),0),turn=turnD+(+op.inc||0),gross=vm==='none'?turn:turn*1.2;
+  const frsDue=vm==='frs'?gross*pct:0,keep=vm==='frs'?gross-turn-frsDue:0,kr=turn?keep/turn:0;
+  const bigCap=x=>vm==='frs'&&x.category==='Capital purchase'&&(+x.amount||0)>=2000;
+  const costOf=x=>(vm==='std'&&VATC.has(x.category))||bigCap(x)?(+x.amount||0)/1.2:(+x.amount||0);
+  const expC=exp.filter(x=>!NOCOST.has(x.category)),expRun=expC.filter(x=>!ONEOFF.has(x.category)),paidVat=exp.filter(x=>x.category==='HMRC VAT').reduce((t,x)=>t+(+x.amount||0),0),paidTax=exp.filter(x=>x.category==='HMRC Tax').reduce((t,x)=>t+(+x.amount||0),0);
+  const capVat=exp.filter(bigCap).reduce((t,x)=>t+(+x.amount||0)/6,0),fines=exp.filter(x=>x.category==='Fines').reduce((t,x)=>t+(+x.amount||0),0);
+  const costsD=expC.reduce((t,x)=>t+costOf(x),0),costsRun=expRun.reduce((t,x)=>t+costOf(x),0),costs=costsD+(+op.cost||0),profit=turn+keep-costs;
+  const start=Date.parse(`${y}-04-06`),end=Date.parse(`${y+1}-04-05`),now=Date.parse(today()),done=now>end;
+  const dates=inc.concat(exp).map(x=>x.date).sort(),first=dates.length?Date.parse(dates[0]):now;
+  const hasOpen=(+op.inc||0)+(+op.cost||0)>0,from=hasOpen?first:Math.min(first,now),dd=Math.max(1,Math.round((Math.min(now,end)-from)/864e5)+1),rem=done?0:Math.max(0,Math.round((end-now)/864e5));
+  const tempo=(turnD*(1+kr)-costsRun)/dd,pY=profit+tempo*rem,turnY=turn+turnD/dd*rem,costsY=costs+costsRun/dd*rem;
+  const PL=payeOf(y),pSum=k=>PL.reduce((t,x)=>t+(+x[k]||0),0),payeG=pSum('gross');
+  /* PAYE goes on to 5 April only while payslips keep coming (last one in the past 3 weeks) */
+  const pd=PL.map(x=>Date.parse(x.date)).sort(),pLast=pd.length?pd[pd.length-1]:0,pSpan=pd.length?Math.max(7,Math.round((Math.min(now,end)-pd[0])/864e5)+7):1,pGo=!done&&pd.length&&now-pLast<=21*864e5;let pf=pGo?1+rem/pSpan:1;
+  const w60=p60Of(y),ytd=!!(w60&&w60.g>payeG+0.005),aOf=ytd?Date.parse(w60.asOf):0,ySpan=ytd?Math.max(7,Math.round((Math.min(aOf,end)-start)/864e5)+1):0;
+  if(ytd){pf=(!done&&now-Math.max(aOf,pLast)<=21*864e5)?1+rem/ySpan:1}
+  const payeNow=ytd?{g:w60.g,t:w60.t,n:w60.n,p:w60.p,net:w60.net,ytd:true}:{g:payeG,t:pSum('tax'),n:pSum('ni'),p:pSum('pension'),net:pSum('net')},payeY={g:payeNow.g*pf,t:payeNow.t*pf,n:payeNow.n*pf,p:payeNow.p*pf,net:payeNow.net*pf,proj:pf>1};
+  const penNet=+((Y.pen||{})[y])||0,penG=penNet*1.25;
+  const other=(+S.otherInc||0)+payeY.g,taxY=Math.max(0,taxP(pY+other,penG)-taxP(other,penG)+class4(pY)),rate=pY>0?taxY/pY:0,taxNow=Math.max(0,profit)*rate;
+  const days=new Set(work.map(x=>x.date)).size,miles=work.reduce((t,x)=>t+(+x.miles||0),0),workTurn=work.reduce((t,x)=>t+(+x.amount||0),0);
+  /* money still to come for runs already driven (cash basis) */
+  const dn=new Set(diaryRuns.map(x=>nrm(x.client)).filter(n=>n.length>=3));if([...dn].some(n=>/tradeteam|gmt|fedex/.test(n)))['gmt','tradeteam'].forEach(n=>dn.add(n));
+  const recv=inc.filter(x=>[...dn].some(n=>nrm(x.client).includes(n))).reduce((t,x)=>t+(+x.amount||0),0),diaryTurn=diaryRuns.reduce((t,x)=>t+(+x.amount||0),0);
+  const elapsed=Math.max(1,Math.round((Math.min(now,end)-start)/864e5)+1);
+  return {y,cash,payeG,payeNow,payeY,penNet,penG,inc,work,workTurn,diaryTurn,recv,exp,expC,expRun,paidVat,paidTax,capVat,fines,op,turn,turnD,gross,frsDue,keep,kr,costs,costsD,costsRun,costOf,profit,done,dd,rem,elapsed,pY,turnY,costsY,taxY,rate,taxNow,net:profit-taxNow,days,miles,vm,pct}}
+
+function render2(){if($('vYear').hidden)return;renderDhl();
+  /* the 1% first-year discount ends on the first anniversary of VAT registration */
+  if(S.frsFirst&&Y.vatReg&&Date.parse(today())>Date.parse(Y.vatReg)+365*864e5){S.frsFirst=false;save();$('frsFirst').checked=false;render();toast(`Minął rok od rejestracji do VAT (${dPL(Y.vatReg)}): wyłączyłem zniżkę 1%, flat rate to teraz ${frsPctNow()}%.`)}
+  const ys=new Set([tyOf(today())]);incAll().concat(expAll()).forEach(x=>x.date&&ys.add(tyOf(x.date)));
+  const yl=[...ys].sort((a,b)=>b-a);if(view.y==null||!ys.has(view.y))view.y=tyOf(today());
+  $('ySel').innerHTML=yl.map(y=>`<option value="${y}" ${y===view.y?'selected':''}>${tyLab(y)}</option>`).join('');
+  $('yWho').innerHTML=people().map(p=>`<option ${p===Y.me?'selected':''}>${esc(p)}</option>`).join('');
+  $('ySrc').className='pill'+(mode==='server'?' on':'');$('ySrc').innerHTML=`<i></i>${mode==='server'?'Runy z Diary · koszty tylko Twoje, z wyciągów (nie ze Spending)':'Dane zapisane na tym urządzeniu'}`;
+  $('yLogout').hidden=mode!=='server';$('localTools').hidden=mode==='server';
+  $('incForm').hidden=mode==='server';$('incHint').innerHTML=mode==='server'?'Przychody to Twoje runy z Diary w panelu. Nowe runy dodawaj tam, a tu pojawią się po odświeżeniu. Wpływy z banku (np. 1st Class) przychodzą z VAT, więc liczę z nich kwotę bez VAT.':'Kwoty bez VAT, tak jak w dzienniku. Wpływy z banku (np. 1st Class) przychodzą z VAT, więc liczę z nich kwotę bez VAT. Na tym urządzeniu możesz dodawać runy ręcznie albo wczytać CSV z panelu.';
+  const D=yearData(view.y),hpd=+Y.hpd||+S.hpd||8.75,wd=Math.max(1,D.days),dayNet=(D.workTurn*(1+D.kr)-D.costsRun)*(1-D.rate);
+  $('yKpi').innerHTML=[[gbp(D.net,0),'na rękę do dziś','dark'],[gbp(D.turn,0),'obrót bez VAT',''],[gbp(D.costs,0),'koszty',''],[gbp(D.taxNow,0),'podatek i NI (szacunek)','']].map(([b,s,c])=>`<div class="tile ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+  const cashInfo=D.cash&&D.diaryTurn?`<br><b>Cash basis:</b> przychód liczę z wpływów na konto. Runy w Diary w tym roku: ${gbp(D.diaryTurn,0)} bez VAT, wpłynęło od tych firm ${gbp(D.recv,0)}${D.diaryTurn-D.recv>1?`, czeka na zapłatę około <b>${gbp(D.diaryTurn-D.recv,0)}</b> (wejdzie do roku, w którym wpłynie)`:''}.${D.recv<1?' <b>Wczytaj wyciągi od 6 kwietnia z wpłatami od GMT</b>, inaczej przychód wyjdzie za niski.':''}`:'';
+  $('yProj').innerHTML=(!D.days?'Brak runów w tym roku podatkowym.':(D.done?`Rok zamknięty: ${D.days} dni pracy, zysk ${gbp(D.profit,0)}, podatek i NI około ${gbp(D.taxY,0)}.`:
+    `Rok ${tyLab(D.y)} do dziś: ${D.days} dni pracy w dzienniku${(D.op.inc||D.op.cost)?' plus kwoty sprzed dziennika':''}, zysk ${gbp(D.profit,0)}${D.vm==='frs'?` (w tym ${gbp(D.keep,0)}, które zostaje Ci z VAT na flat rate)`:''}. <b>Jeśli tak pójdzie do 5 kwietnia</b>: zysk około ${gbp(D.pY,0)}, podatek i NI około ${gbp(D.taxY,0)} (${(D.rate*100).toFixed(1)}%), na rękę około <b>${gbp(D.pY-D.taxY,0)}</b>, czyli ${gbp((D.pY-D.taxY)/12,0)} miesięcznie. Prognoza bierze tempo z ostatnich ${D.dd} dni dziennika i dolicza je do 5 kwietnia (${D.rem} dni). Im dłużej prowadzisz dziennik, tym jest dokładniejsza.${!(D.op.inc||D.op.cost)&&D.elapsed-D.dd>14?` <b>Dziennik zaczyna się ${D.elapsed-D.dd} dni po 6 kwietnia.</b> Wpisz niżej w Ustawieniach, ile zarobiłeś i wydałeś wcześniej w tym roku, inaczej podatek wyjdzie za niski.`:''}`))+cashInfo;
+  renderPaye(D);renderAll(D);
+  // what to put aside
+  const q=+Y.vatQ||3,t=today(),ty=+t.slice(0,4),tm=+t.slice(5,7);let em=tm;while((em-q)%3!==0)em++;let ey=ty;if(em>12){em-=12;ey++}
+  let sm=em-2,sy=ey;if(sm<1){sm+=12;sy--}const qs=`${sy}-${String(sm).padStart(2,'0')}-01`,qe=iso(Date.UTC(ey,em,0));
+  const qInc=incAll().filter(x=>x.who===Y.me&&x.date>=qs&&x.date<=qe).reduce((s,x)=>s+(+x.amount||0),0);
+  const qVat=D.vm==='frs'?qInc*1.2*D.pct:D.vm==='std'?qInc*0.2-expAll().filter(x=>x.who===Y.me&&x.date>=qs&&x.date<=qe&&VATC.has(x.category)).reduce((s,x)=>s+(+x.amount||0)/6,0):0;
+  const qDue=iso(Date.UTC(ey,em+1,7));
+  const poa=+(Y.poa||{})[D.y]||0;
+  const paidLine=(D.paidVat||D.paidTax)?`<p class="note" style="grid-column:1/-1;margin:0">Zapłacone już do HMRC w roku ${tyLab(D.y)}: VAT <b>${gbp(D.paidVat,2)}</b>, podatek <b>${gbp(D.paidTax,2)}</b>. Te płatności nie są kosztem, więc nie zmniejszają zysku. Wpłaty podatku na ten rok (zaliczki) wpisz też w Ustawieniach.</p>`:'';
+  const extraLine=(D.capVat?`<p class="note" style="grid-column:1/-1;margin:0">Zakup sprzętu powyżej £2,000 na flat rate: VAT <b>${gbp(D.capVat,2)}</b> odzyskasz w deklaracji VAT za ten kwartał. Do podatku cały zakup odliczasz w tym roku (capital allowance 100% dla vana).</p>`:'')+(D.fines?`<p class="note" style="grid-column:1/-1;margin:0">Mandaty w tym roku: ${gbp(D.fines,2)}. Nie są kosztem, więc nie zmniejszają podatku.</p>`:'');
+  $('ySave').innerHTML=[[gbp(qVat,2),D.vm==='none'?'nie jesteś na VAT':`VAT za ten kwartał (${dPL(qs)}–${dPL(qe)}), płatny do ${dPL(qDue)}`],
+    [gbp(Math.max(0,D.taxNow-poa),0),`podatek i NI z tego, co już zarobiłeś${poa?`, po odjęciu zapłaconych zaliczek ${gbp(poa,0)}`:''}`],
+    [gbp(D.taxY/12+(D.vm==='frs'?D.gross&&D.turnY*1.2*D.pct/12:0),0),'odkładaj miesięcznie na podatek'+(D.vm!=='none'?' i VAT':'')]].map(([b,s],i)=>`<div class="tile ${i===1?'dark':''}"><b>${b}</b><span>${s}</span></div>`).join('')+paidLine+extraLine;
+  // HMRC calendar from last year's bill
+  const H=Y.hist||{},pb=histBill(D.y-1),rows=[],pPrev=+(Y.poa||{})[D.y-1]||0,pw=p60Of(D.y-1);
+  if(pb!=null){rows.push([`${D.y+1}-01-31`,`dopłata za ${tyLab(D.y-1)} (Self Assessment ${gbp(pb,0)}${pw&&!/^z zeznania/.test(H[D.y-1].src||'')?` z etatem ${gbp(pw.g,0)}`:''} minus zaliczki ${gbp(pPrev,2)})`,pb-pPrev]);
+    if(pb>=1000){rows.push([`${D.y+1}-01-31`,`1. zaliczka na ${tyLab(D.y)} (50% z ${gbp(pb,0)})`,pb/2]);rows.push([`${D.y+1}-07-31`,`2. zaliczka na ${tyLab(D.y)}`,pb/2])}}
+  const poaY=pb!=null&&pb>=1000?pb:0;
+  const Bc=allCol(D.pY,D.payeY,0,D.penG),saBill=Bc.itax-D.payeY.t+Bc.c4;
+  rows.push([`${D.y+2}-01-31`,`dopłata za ${tyLab(D.y)} (prognoza Self Assessment ${gbp(saBill,0)} minus zaliczki)`,saBill-poaY]);
+  if(saBill>=1000)rows.push([`${D.y+2}-01-31`,`1. zaliczka na ${tyLab(D.y+1)} (50% prognozy)`,saBill/2]);
+  $('yDue').innerHTML=rows.map(r=>`<tr><td>${dPL(r[0])}</td><td>${r[1]}</td><td class="r"><b>${r[2]<0?'zwrot '+gbp(-r[2],2):gbp(r[2],2)}</b></td></tr>`).join('');
+  // what things cost
+  const fuel=D.expC.filter(x=>x.category==='Fuel').reduce((t,x)=>t+D.costOf(x),0),varC=D.expC.filter(x=>VARC.has(x.category)).reduce((t,x)=>t+D.costOf(x),0);
+  $('yPer').innerHTML=[[gbp(D.workTurn/wd,0),'obrót na dzień pracy'],[gbp(D.costsRun/wd,2),'koszty na dzień pracy'],[gbp(dayNet/wd,0),'na rękę na dzień'],[gbp(dayNet/wd/hpd,2),`na rękę na godzinę (${hpd} h)`],
+    [D.miles?gbp(D.miles/wd,0).replace('£','')+' mil':'—','dziennie średnio'],[D.miles?gbp(fuel/D.miles,2):'—','paliwo na milę'],[D.miles?gbp(D.costsRun/D.miles,2):'—','wszystkie koszty na milę'],[gbp(varC/wd,2),'paliwo i opłaty na dzień']]
+    .map(([b,s],i)=>`<div class="tile ${i===2?'dark':''}"><b>${b}</b><span>${s}</span></div>`).join('');
+  const by={};D.expC.forEach(x=>by[x.category]=(by[x.category]||0)+D.costOf(x));const cats=Object.entries(by).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...cats.map(c=>c[1]));
+  $('yCats').innerHTML=cats.length?cats.map(([c,v])=>`<div class="cbar"><span>${esc(cl(c))}</span><span class="tr"><i class="${VARC.has(c)?'var':''}" style="width:${v/mx*100}%"></i></span><span class="v">${gbp(v,2)}<small>${gbp(v/wd,2)} / dzień${D.miles?` · ${gbp(v/D.miles,2)} / milę`:''}</small></span></div>`).join('')
+    +`<p class="hint" style="margin-top:8px">Pomarańczowe to koszty dzienne (paliwo, opłaty), niebieskie to stałe.${D.vm==='std'?' Kwoty bez VAT tam, gdzie go odzyskujesz.':D.vm==='frs'?' Kwoty z VAT, bo na flat rate go nie odzyskujesz.':''}</p>`:'<p class="hint">Brak wydatków w tym roku.</p>';
+  // lists
+  $('expT').innerHTML=D.exp.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${dPL(x.date)}</td><td>${NOCOST.has(x.category)?`<span class="pill">${{'HMRC VAT':'VAT do HMRC','HMRC Tax':'Podatek do HMRC','Van HP capital':'Rata HP (nie koszt)','Fines':'Mandat (nie koszt)'}[x.category]}</span>`:esc(cl(x.category))}</td><td class="minus">${esc(x.notes||x.vehicle||'')}</td><td class="r">${gbp(x.amount,2)}</td><td><button type="button" class="x" data-dexp="${esc(x.id)}" aria-label="Usuń wydatek">✕</button></td></tr>`).join('')||'<tr><td colspan="5" class="minus">Nic jeszcze. Dodaj pierwszy wydatek powyżej.</td></tr>';
+  $('incT').innerHTML=D.inc.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${dPL(x.date)}</td><td>${esc(x.client)}</td><td class="minus">${x.bank?'<span class="pill">z banku, z VAT</span>':esc(x.job||'')}</td><td class="r">${x.miles?Math.round(x.miles):''}</td><td class="r"><b>${gbp(x.amount,2)}</b></td><td class="r minus">${gbp(x.bank&&x.gross?x.gross:(vatOn()?x.amount*1.2:x.amount),2)}</td><td>${mode==='server'&&!x.bank?'':`<button type="button" class="x" data-dinc="${esc(x.id)}" aria-label="Usuń run">✕</button>`}</td></tr>`).join('')||'<tr><td colspan="7" class="minus">Brak runów w tym roku.</td></tr>';
+  // months
+  const M={};D.inc.forEach(x=>{const k=x.date.slice(0,7);(M[k]=M[k]||{d:new Set(),i:0,c:0}).d.add(x.date);M[k].i+=+x.amount||0});D.expC.forEach(x=>{const k=x.date.slice(0,7);(M[k]=M[k]||{d:new Set(),i:0,c:0}).c+=D.costOf(x)});
+  const kr=D.kr;
+  $('monT').innerHTML=((D.op.inc||D.op.cost)?`<tr><td>Przed dziennikiem</td><td class="r"></td><td class="r">${gbp(D.op.inc,0)}</td><td class="r minus">−${gbp(D.op.cost,0)}</td><td class="r">${gbp(D.op.inc*(1+kr)-D.op.cost,0)}</td><td class="r net">${gbp((D.op.inc*(1+kr)-D.op.cost)*(1-D.rate),0)}</td></tr>`:'')+Object.keys(M).sort().map(k=>{const m=M[k],p=m.i*(1+kr)-m.c,n=p-Math.max(0,p)*D.rate;return `<tr><td>${MON[+k.slice(5)-1]} ${k.slice(0,4)}</td><td class="r">${m.d.size}</td><td class="r">${gbp(m.i,0)}</td><td class="r minus">−${gbp(m.c,0)}</td><td class="r">${gbp(p,0)}</td><td class="r net">${gbp(n,0)}</td></tr>`}).join('')||'<tr><td colspan="6" class="minus">Brak danych.</td></tr>';
+  // years
+  const Z={g:0,t:0,n:0,p:0},hr=Object.entries(H).map(([y,h])=>{const w=p60Of(+y)||Z;return [+y,h.turn,h.costs,h.profit,histBill(+y),h.src+(w.g&&!/^z zeznania/.test(h.src||'')?', z etatem z P60':''),w]});
+  if(!H[D.y]&&(D.days||D.turn)){const Bh=allCol(D.pY,D.payeY,0,D.penG);hr.push([D.y,D.vm==='none'?D.turnY:D.turnY*1.2,D.costsY,D.pY,Bh.itax-D.payeY.t+Bh.c4,D.done?'z dziennika':'prognoza',D.payeY])}
+  $('histT').innerHTML=hr.sort((a,b)=>b[0]-a[0]).map(r=>{const w=r[6]||Z,net=r[3]+w.g-r[4]-w.t-w.n-w.p;return `<tr><td><b>${tyLab(r[0])}</b><br><span class="src">${esc(r[5])}</span></td><td class="r">${gbp(r[1],0)}</td><td class="r minus">−${gbp(r[2],0)}</td><td class="r">${gbp(r[3],0)}</td><td class="r">${w.g?gbp(w.g,0):'—'}</td><td class="r minus">−${gbp(r[4]+w.t+w.n,0)}</td><td class="r net">${gbp(net,0)}</td><td class="r">${gbp(net/12,0)}</td></tr>`}).join('');
+  $('yPoa').value=(Y.poa||{})[D.y]||'';if(document.activeElement!==$('yPen'))$('yPen').value=D.penNet||'';if(document.activeElement!==$('yGoal'))$('yGoal').value=Y.goal==null?'':Y.goal;$('yBasis').value=cashBasis()?'cash':'work';if(document.activeElement!==$('yPay'))$('yPay').value=payers().join(', ');$('yOi').value=D.op.inc||'';$('yOc').value=D.op.cost||'';$('yOpenLab').textContent=tyLab(D.y);$('yQ').value=String(Y.vatQ||3);$('yHpd').value=hpd;
+  renderAdvice(D);renderVat();renderDocs();renderUnpaid();window.__D=D}
+
+/* ---------- server (same login as the panel) ---------- */
+async function call(o){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:token},o))});return r.json()}
+const needLogin=m=>/log in|login|zaloguj|session|expired/i.test(String(m||''));
+function showLogin(msg){$('vLogin').hidden=false;$('vCalc').hidden=true;$('vYear').hidden=true;document.querySelector('.tabs').hidden=true;$('ylerr').textContent=msg||''}
+function unlock(){$('vLogin').hidden=true;document.querySelector('.tabs').hidden=false;$('tOut').hidden=false;goHash()}
+function logout(msg){clearTimeout(pushT);token='';who='';rev=0;try{localStorage.removeItem(TKEY)}catch(e){}Y=normY({},'');srv={inc:[],exp:[],people:[]};IMP=[];IMPH=[];showLogin(msg)}
+async function loadSrv(first){try{const [a,b,c]=await Promise.all([call({action:'admin_diary'}),call({action:'admin_spend'}),call({action:'admin_selfemp'})]);
+    const bad=[a,b,c].find(x=>!x.ok);if(bad){if(needLogin(bad.message)){logout(first?'':'Zaloguj się ponownie.');return}throw new Error(bad.message)}
+    srv.inc=(a.items||[]).map(x=>({diary:true,inv:x.invoice||'',id:x.id,date:x.date,who:x.driver,client:x.client,job:x.job,amount:+x.amount||0,miles:x.miles&&x.miles.total?+x.miles.total:0}));
+    srv.people=a.drivers||b.people||[];srv.invoices=(a.invoices||[]).map(v=>({number:v.number,driver:v.driver,client:v.client,total:+v.total||0,created:v.created,due:v.due,status:v.status}));
+    if(first||c.rev!==rev){who=c.who;rev=c.rev;let st=c.state,moved=false;
+      if(!st){let loc=null;try{loc=JSON.parse(localStorage.getItem('prj_year')||'null')}catch(e){}
+        if(loc&&(loc.me||'Patryk')===who){st=loc;moved=true}else st=who==='Patryk'?{hist:SEED.hist,poa:SEED.poa}:{}}
+      Y=normY(st,who);try{localStorage.removeItem('prj_year')}catch(e){}
+      /* once: costs that this calculator saved earlier into the panel's Spending (bank lines, HMRC payments) move into your private list */
+      let mv=0;if(!Y.expV2){const have=new Set(Y.exp.map(x=>x.date+'|'+(+x.amount).toFixed(2)));
+        (b.items||[]).filter(x=>x.who===who&&(String(x.notes||'').trim()||NOCOST.has(x.category))).forEach(x=>{const k=x.date+'|'+(+x.amount).toFixed(2);if(have.has(k))return;have.add(k);Y.exp.push({id:'m'+x.id,date:x.date,who,category:x.category,amount:+x.amount||0,notes:x.notes||''});mv++});Y.expV2=1}
+      if(!c.state||mv)push();if(moved)toast('Przeniosłem Twoje dane z tej przeglądarki na serwer.');else if(mv)toast(`Przeniosłem ${mv} kosztów z wyciągów ze Spending do Twoich prywatnych kosztów.`)}
+    if(first)unlock();else render2()}
+  catch(e){if(first)showLogin('Brak połączenia z serwerem PRJ. Spróbuj za chwilę.');else toast('Brak połączenia z serwerem.')}}
+$('yLogin').onsubmit=async e=>{e.preventDefault();$('ylerr').textContent='';$('ylbtn').disabled=true;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'login',username:$('ylu').value.trim(),password:$('ylp').value})}).then(x=>x.json());
+    if(!r.ok){$('ylerr').textContent=r.message||'Zły login lub hasło.';return}token=r.token;try{localStorage.setItem(TKEY,token)}catch(x){}$('ylp').value='';await loadSrv(true)}
+  catch(x){$('ylerr').textContent='Brak połączenia z serwerem.'}finally{$('ylbtn').disabled=false}};
+$('yLogout').onclick=()=>logout('Wylogowano.');
+$('yReload').onclick=()=>{if(mode==='server')loadSrv(false);else render2()};
+
+/* ---------- adding and deleting ---------- */
+$('eCat').innerHTML=`<optgroup label="Koszty firmy">${CATS.filter(c=>!NOCOST.has(c)).map(c=>`<option value="${c}" ${c==='Fuel'?'selected':''}>${cl(c)}</option>`).join('')}</optgroup><optgroup label="Nie są kosztem (nie zmniejszają podatku)">${[...NOCOST].map(c=>`<option value="${c}">${cl(c)}</option>`).join('')}</optgroup>`;$('eDate').value=today();$('iDate').value=today();
+$('expForm').onsubmit=async e=>{e.preventDefault();const it={date:$('eDate').value,category:$('eCat').value,amount:Math.round(+$('eAmt').value*100)/100,notes:$('eNote').value.trim(),who:Y.me};if(!(it.amount>0))return;
+  Y.exp.push(Object.assign({id:'x'+Date.now()},it));saveY();
+  $('eAmt').value='';$('eNote').value='';toast(`Dodane: ${cl(it.category)} ${gbp(it.amount,2)}`);render2()};
+let delArm='';
+$('expT').addEventListener('click',async e=>{const b=e.target.closest('[data-dexp]');if(!b)return;const id=b.dataset.dexp;
+  if(delArm!==id){delArm=id;b.textContent='Usuń?';b.style.color='var(--bad)';setTimeout(()=>{if(delArm===id){delArm='';render2()}},3000);return}delArm='';
+  Y.exp=Y.exp.filter(x=>x.id!==id);saveY();render2()});
+$('incForm').onsubmit=e=>{e.preventDefault();const it={id:'i'+Date.now(),date:$('iDate').value,client:$('iCli').value.trim(),job:'',amount:Math.round(+$('iAmt').value*100)/100,miles:+$('iMi').value||0,who:Y.me};if(!(it.amount>0))return;
+  Y.inc.push(it);saveY();$('iAmt').value='';$('iMi').value='';toast(`Dodany run: ${it.client} ${gbp(it.amount,2)}`);render2()};
+$('incT').addEventListener('click',e=>{const b=e.target.closest('[data-dinc]');if(!b)return;const id=b.dataset.dinc;
+  if(delArm!==id){delArm=id;b.textContent='Usuń?';b.style.color='var(--bad)';setTimeout(()=>{if(delArm===id){delArm='';render2()}},3000);return}delArm='';Y.inc=Y.inc.filter(x=>x.id!==id);saveY();render2()});
+
+/* ---------- settings ---------- */
+$('ySel').onchange=()=>{view.y=+$('ySel').value;render2()};
+$('yWho').onchange=()=>{Y.me=$('yWho').value;saveY();render2()};
+$('yPoa').oninput=()=>{Y.poa=Y.poa||{};Y.poa[view.y]=+$('yPoa').value||0;saveY();render2()};
+const setOpen=()=>{Y.open=Y.open||{};Y.open[Y.me+'|'+view.y]={inc:+$('yOi').value||0,cost:+$('yOc').value||0};saveY();render2()};$('yOi').onchange=setOpen;$('yOc').onchange=setOpen;
+$('yPay').onchange=()=>{Y.payers=$('yPay').value.split(',').map(x=>x.trim()).filter(Boolean);saveY()};
+$('yGoal').onchange=()=>{Y.goal=+$('yGoal').value||0;saveY();render2()};
+$('yPen').onchange=()=>{Y.pen=Y.pen||{};Y.pen[view.y]=+$('yPen').value||0;saveY();render2()};
+$('yBasis').onchange=()=>{Y.basis=$('yBasis').value;saveY();render2()};
+$('yQ').onchange=()=>{Y.vatQ=+$('yQ').value;saveY();render2()};
+$('yHpd').oninput=()=>{Y.hpd=+$('yHpd').value||8.75;saveY();render2()};
+
+/* averages into the offer calculator */
+$('yToCalc').onclick=()=>{const D=window.__D;if(!D||!D.days){toast('Najpierw potrzebne są runy w tym roku.');return}
+  const wd=D.days,months=Math.max(1,D.dd/30.4),sum=c=>D.expRun.filter(x=>c(x.category)).reduce((t,x)=>t+D.costOf(x),0),fuelDay=sum(c=>c==='Fuel')/wd,milesDay=D.miles/wd;
+  S.company='Mój dziennik '+tyLab(D.y);S.phases=[{name:'Średni dzień z dziennika',rate:Math.round(D.workTurn/wd),days:5,van:true}];
+  if(milesDay>0&&fuelDay>0){S.miles=Math.round(milesDay);S.mpg=Math.round(milesDay*4.54609*(+S.fuel||1.45)/(S.vatMode==='std'?fuelDay*1.2:fuelDay))}
+  S.charges=Math.round(sum(c=>VARC.has(c)&&c!=='Fuel')/wd*100)/100;S.ins=Math.round(sum(c=>c==='Insurance')/months);S.fin=Math.round(sum(c=>c==='Van finance')/months);
+  S.serv=Math.round(sum(c=>c==='Repairs & service'||c==='Tyres')/months);S.oth=Math.round(sum(c=>!VARC.has(c)&&!['Insurance','Van finance','Repairs & service','Tyres'].includes(c))/months);S.hpd=+Y.hpd||S.hpd;
+  ['company','dpw','hpd','wpy','miles','mpg','fuel','charges','ins','fin','serv','oth','otherInc'].forEach(k=>$(k).value=S[k]);renderPhases();render();go('calc');
+  toast('Średnie z dziennika są w kalkulatorze. Zapisz je jako ofertę, żeby porównać z innymi.')};
+
+/* ---------- files: CSV for the accountant, CSV from the panel, backup ---------- */
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+const csvq=v=>{v=String(v==null?'':v);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+$('yCsv').onclick=()=>{const D=window.__D;if(!D)return;const L=[['Type','Date','Client / category','Details','Miles','Amount £','VAT note'].map(csvq).join(',')];
+  D.inc.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(x=>L.push(['Income',x.date,x.client,x.job||'',x.miles||'',(+x.amount).toFixed(2),'ex VAT'].map(csvq).join(',')));
+  D.exp.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(x=>L.push([NOCOST.has(x.category)?'HMRC payment':'Expense',x.date,x.category,x.notes||x.vehicle||'','',(+x.amount).toFixed(2),'paid incl. VAT'].map(csvq).join(',')));
+  L.push('');[['Turnover ex VAT',D.turn],['Invoiced incl. VAT',D.gross],['Flat rate VAT due',D.frsDue],['Expenses',D.costs],['Profit',D.profit]].forEach(r=>L.push([csvq(r[0]),'','','','',csvq(r[1].toFixed(2))].join(',')));
+  dl(`PRJ-${Y.me}-${tyLab(D.y).replace('/','-')}.csv`,'﻿'+L.join('\r\n'),'text/csv');toast('Plik CSV gotowy dla księgowej.')};
+function parseCSV(t,dl){const R=[];let row=[],f='',q=false;t=t.replace(/^﻿/,'');dl=dl||',';for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===dl){row.push(f);f=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);R.push(row);row=[];f=''}else f+=c}if(f||row.length){row.push(f);R.push(row)}return R.filter(r=>r.some(x=>x!==''))}
+$('csvIn').onchange=async e=>{let ni=0,ne=0;for(const file of e.target.files){const R=parseCSV(await file.text());if(!R.length)continue;const h=R[0].map(s=>s.trim()),ix=n=>h.indexOf(n);
+    if(ix('Driver')>=0&&ix('Amount £')>=0){R.slice(1).forEach(r=>{const it={date:r[ix('Date')],who:r[ix('Driver')],client:r[ix('Client')]||'',job:r[ix('Job / route')]||'',amount:+r[ix('Amount £')]||0,miles:+r[ix('Miles round trip')]||0};
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(it.date)||!(it.amount>0))return;if(Y.inc.some(x=>x.date===it.date&&x.who===it.who&&+x.amount===it.amount&&(x.client===it.client)&&(!x.job||!it.job||x.job===it.job||x.id.startsWith('s'))))return;Y.inc.push(Object.assign({id:'c'+Date.now()+ni},it));ni++})}
+    else if(ix('What for')>=0){R.slice(1).forEach(r=>{const it={date:r[ix('Date')],who:r[ix('Who paid')],category:r[ix('What for')],amount:+r[ix('Amount £')]||0,notes:r[ix('Notes')]||'',vehicle:r[ix('Van')]||''};
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(it.date)||!(it.amount>0))return;if(Y.exp.some(x=>x.date===it.date&&x.who===it.who&&x.category===it.category&&+x.amount===it.amount))return;Y.exp.push(Object.assign({id:'c'+Date.now()+ne},it));ne++})}}
+  e.target.value='';saveY();render2();toast(`Wczytane: ${ni} runów i ${ne} wydatków (powtórki pominięte).`)};
+$('bkOut').onclick=()=>dl(`PRJ-moj-rok-kopia-${today()}.json`,JSON.stringify(Y,null,1),'application/json');
+$('bkIn').onchange=async e=>{try{const v=JSON.parse(await e.target.files[0].text());if(!Array.isArray(v.inc)||!Array.isArray(v.exp))throw 0;Y=v;saveY();render2();toast('Kopia wczytana.')}catch(x){toast('To nie jest plik kopii z tego kalkulatora.')}e.target.value=''};
+
+/* ---------- bank statement PDF: read the text in the browser (pdf.js), rebuild the lines, take money going out ---------- */
+const PDFJS='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+let pdfLoading=null;
+function loadPdfJs(){if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);if(pdfLoading)return pdfLoading;
+  pdfLoading=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=PDFJS+'pdf.min.js';sc.onerror=()=>{pdfLoading=null;no(new Error('load'))};
+    sc.onload=()=>{let n=0;const t=setInterval(()=>{if(window.pdfjsLib){clearInterval(t);try{window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js'}catch(e){}ok(window.pdfjsLib)}else if(++n>100){clearInterval(t);pdfLoading=null;no(new Error('load'))}},50)};
+    document.head.appendChild(sc)});return pdfLoading}
+const MONEY=/^[-−]?£?\d{1,3}(?:,\d{3})*\.\d{2}(?:\s?(?:CR|DR|-))?$/i;
+const MO={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+async function pdfLines(buf){const lib=await loadPdfJs(),doc=await lib.getDocument({data:buf}).promise,lines=[];
+  for(let p=1;p<=doc.numPages;p++){const tc=await (await doc.getPage(p)).getTextContent(),rows=[];
+    tc.items.forEach(it=>{const s=String(it.str||'').trim();if(!s)return;const x=it.transform[4],y=it.transform[5],w=it.width||0;
+      let r=rows.find(r=>Math.abs(r.y-y)<3);if(!r){r={y,items:[]};rows.push(r)}r.items.push({s,x,r:x+w})});
+    rows.sort((a,b)=>b.y-a.y).forEach(r=>{r.items.sort((a,b)=>a.x-b.x);lines.push(r.items)})}
+  return lines}
+function readBankPdfLines(lines){const all=lines.map(l=>l.map(i=>i.s).join(' ')).join('\n');
+  const yrs=(all.match(/\b20\d{2}\b/g)||[]).reduce((m,y)=>(m[y]=(m[y]||0)+1,m),{}),year=+(Object.entries(yrs).sort((a,b)=>b[1]-a[1])[0]||[new Date().getFullYear()])[0];
+  let cols=null,last='',prevBal=null,out=[],prev=null;
+  const dateAt=t=>{let m;
+    if(m=t.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})\b/)){const y=m[3].length===2?'20'+m[3]:m[3];return [`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`,m[0].length]}
+    if(m=t.match(/^(\d{4})-(\d{2})-(\d{2})\b/))return [m[0],m[0].length];
+    if(m=t.match(/^(\d{1,2})\s?([A-Za-z]{3})[a-z]*\.?(?:\s+(\d{2,4}))?\b/)){const k=MO[m[2].toLowerCase()];if(k){const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):year;return [`${y}-${String(k).padStart(2,'0')}-${m[1].padStart(2,'0')}`,m[0].length]}}
+    return null};
+  for(const l of lines){const text=l.map(i=>i.s).join(' '),low=text.toLowerCase();
+    if(/balance/.test(low)&&/(paid out|money out|debit|withdrawals?|out\b|amount)/.test(low)&&/date/.test(low)){
+      const at=re=>{const i=l.find(i=>re.test(i.s.toLowerCase()));return i?(i.x+i.r)/2:null};
+      cols={out:at(/paid out|money out|debit|withdrawal|^out$/),in:at(/paid in|money in|credit|deposit|^in$/),amt:at(/^amount/),bal:at(/balance/)};prev=null;continue}
+    const money=l.filter(i=>MONEY.test(i.s)),words=l.filter(i=>!MONEY.test(i.s));
+    let wtext=words.map(i=>i.s).join(' ').trim(),d=dateAt(wtext);
+    if(d){last=d[0];wtext=wtext.slice(d[1]).trim()}
+    const val=i=>{const neg=/^[-−]|DR$|-$/i.test(i.s);const v=parseFloat(i.s.replace(/[^\d.]/g,''));return neg?-v:v};
+    if(!money.length){if(prev&&wtext&&!d&&wtext.length<60&&!/page|statement|continued|sort code|account/i.test(wtext))prev.desc=(prev.desc+' '+wtext).slice(0,120);prev=null;continue}
+    if(/brought forward|carried forward|opening balance|closing balance|start balance|end balance/i.test(low)){prevBal=val(money[money.length-1]);prev=null;continue}
+    if(!last){prev=null;continue}
+    let outAmt=null,inAmt=null,bal=null;
+    if(cols&&(cols.out!=null||cols.amt!=null)){money.forEach(i=>{const c=(i.x+i.r)/2,opts=[['out',cols.out],['in',cols.in],['amt',cols.amt],['bal',cols.bal]].filter(o=>o[1]!=null).sort((a,b)=>Math.abs(a[1]-c)-Math.abs(b[1]-c));const k=opts[0][0];
+        if(k==='out')outAmt=Math.abs(val(i));else if(k==='in')inAmt=Math.abs(val(i));else if(k==='bal')bal=val(i);else{const v=val(i);if(v<0)outAmt=-v;else inAmt=v}})}
+    else{const vs=money.map(val);if(vs.length>=2){bal=vs[vs.length-1];const a=vs[vs.length-2];if(a<0)outAmt=-a;else if(prevBal!=null)(bal<prevBal-0.005?outAmt=a:inAmt=a);else inAmt=a}else{const a=vs[0];if(a<0)outAmt=-a}}
+    if(cols&&cols.amt!=null&&outAmt==null&&inAmt!=null&&bal!=null&&prevBal!=null&&bal<prevBal-0.005){outAmt=inAmt;inAmt=null}
+    if(bal!=null)prevBal=bal;
+    if(outAmt>0){prev={date:last,desc:wtext.replace(/\s+/g,' ').slice(0,120)||'Wydatek',amount:Math.round(outAmt*100)/100,kind:'out'};out.push(prev)}else if(inAmt>0){prev={date:last,desc:wtext.replace(/\s+/g,' ').slice(0,120)||'Wpływ',amount:Math.round(inAmt*100)/100,kind:'in'};out.push(prev)}else prev=null}
+  return finalize(out)}
+async function readBankPdf(file){return readBankPdfLines(await pdfLines(new Uint8Array(await file.arrayBuffer())))}
+
+/* ---------- bank statement CSV: outgoing payments become expenses ---------- */
+const RULES=[[/hmrc.{0,20}vat|vat.{0,20}hmrc|\bvat\b.*(return|payment)/i,'HMRC VAT'],[/hmrc|self ?assessment|cumbernauld|shipley/i,'HMRC Tax'],[/ulez|ultra low/i,'ULEZ'],[/congestion/i,'Congestion Charge'],[/dart ?charge|dartford/i,'Dart Charge'],
+ [/shell|\bbp\b|esso|texaco|\bjet\b|gulf|murco|valero|applegreen|\bmoto\b|welcome break|roadchef|euro garages|asda (petrol|fuel|express)|tesco (pfs|petrol|fuel)|sainsbury'?s? (pfs|petrol|fuel)|morrisons (pfs|petrol|fuel)|fuel|diesel|petrol/i,'Fuel'],
+ [/\bpcn\b|penalty charge|fixed penalty|\bfine\b|bus lane|moving traffic|enforcement/i,'Fines'],[/ringgo|paybyphone|justpark|\bncp\b|parking|apcoa|q-park|euro car parks/i,'Parking'],[/\btoll/i,'Tolls'],
+ [/kwik ?fit|tyre|national tyres|blackcircles|euromaster/i,'Tyres'],[/halfords|euro car parts|\bgsf\b|garage|motors\b|service|\bmot\b|repair|auto ?centre|parts/i,'Repairs & service'],
+ [/dvla|vehicle tax|road tax|\bved\b/i,'Road tax'],[/insur|zego|admiral|aviva|\baxa\b|hiscox|direct line|ageas|marshmallow|tradex|qdos/i,'Insurance'],
+ [/\bee\b|vodafone|\bo2\b|\bthree\b|giffgaff|tesco mobile|lebara|lyca|smarty|voxi|id mobile/i,'Phone'],[/ionos|1&1|1and1|cloudflare|godaddy|123-?reg|namecheap|squarespace|\bwix\b|google ?(workspace|gsuite)|microsoft 365|office 365|stationery/i,'Website & office'],[/accountan|crunch|quickbooks|\bxero\b|freeagent|bookkeep/i,'Accountant'],
+ [/car ?wash|hand ?wash|valet|\bimo\b/i,'Van wash'],[/screwfix|toolstation|machine mart/i,'Equipment']];
+function guessCat(t){for(const [re,c] of RULES)if(re.test(t))return c;return ''}
+function toISO(v){v=String(v||'').trim();let m;
+  if(m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  if(m=v.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/)){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
+  const mo={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  if(m=v.match(/^(\d{1,2})[\s\-]([A-Za-z]{3})[A-Za-z]*[\s\-,]+(\d{2,4})/)){const k=mo[m[2].toLowerCase()];if(k){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${String(k).padStart(2,'0')}-${m[1].padStart(2,'0')}`}}
+  return ''}
+const num=v=>{v=String(v==null?'':v).replace(/[£,\s]/g,'').replace(/^\((.*)\)$/,'-$1');if(/^\d*\.?\d+-$/.test(v))v='-'+v.slice(0,-1);const n=parseFloat(v);return isFinite(n)?n:NaN};
+let IMP=[],IMPH=[];
+const sig=x=>[x.date,(+x.amount).toFixed(2),x.kind||'out',nrm(x.desc).slice(0,30)].join('|');
+/* money in: only payments from companies count as income, never your own transfers */
+const nrm=t=>String(t||'').toLowerCase().replace(/\bfirst\b/g,'1st').replace(/[^a-z0-9]/g,'');
+const payers=()=>(Y.payers||['1st Class Logistics','GMT','Tradeteam','DHL']).filter(Boolean);
+const OWN=/forgiel|patryk|jasinski|own account|savings|\bpot\b|vault|interest|cashback|refund|hmrc|transfer from|from a\/c|mobile pymt from/i;
+const BIZ=/\b(ltd|limited|llp|plc|logistics?|transport|group|couriers?|freight|haulage|services?|inc vat|bgc|bacs)\b/i;
+const GENERIC=new Set(['ltd','limited','llp','plc','logistic','logistics','group','uk','transport','services','the','and']);
+const core=p=>String(p).toLowerCase().replace(/\bfirst\b/g,'1st').split(/[^a-z0-9]+/).filter(w=>w&&!GENERIC.has(w)).join('');
+const payerIn=(d,p)=>{const n=nrm(p),c=core(p);return (n.length>=3&&(d.includes(n)||d.includes(n.replace(/s$/,''))))||(c.length>=3&&d.includes(c))};
+function finalize(list){const diary=new Set(incAll().filter(x=>!x.bank).map(x=>nrm(x.client)).filter(n=>n.length>=3));
+  if([...diary].some(n=>/tradeteam|gmt|fedex/.test(n)))['gmt','gmtgroup','gmttransport','tradeteam'].forEach(n=>diary.add(n));
+  return list.map(x=>{if(x.kind==='in'){const d=nrm(x.desc),p=payers().find(p=>payerIn(d,p)),own=OWN.test(x.desc)&&!p;
+      const vs=/webuyany|motorway\.co|cinch|carwow|van sale|vehicle sale|\bbca\b/i.test(x.desc),biz=!own&&(!!p||vs||BIZ.test(x.desc)),inDiary=!cashBasis()&&[...diary].some(n=>d.includes(n));
+      const dup=Y.inc.some(e=>e.bank&&e.date===x.date&&Math.abs(+e.gross-x.amount)<0.005);
+      return Object.assign(x,{client:vs?'Sprzedaż vana ('+x.desc.slice(0,24)+')':p||x.desc.replace(/\b(fp|bgc|bacs|fpi|faster payment|ref.*)$/i,'').trim().slice(0,40),biz,own,inDiary,dup,on:biz&&!inDiary&&!dup})}
+    const priv=(Y.priv||[]).includes(pkey(x.desc)),cat=priv?'':guessCat(x.desc),dup=expAll().some(e=>e.who===Y.me&&e.date===x.date&&Math.abs(+e.amount-x.amount)<0.005);return Object.assign(x,{cat,dup,priv,on:!!cat&&!dup})})}
+/* a shop marked private once stays private on the next statement */
+const pkey=t=>String(t||'').toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).filter(w=>w.length>1).slice(0,2).join(' ');
+function readBank(text){const first=text.split(/\r?\n/).find(l=>l.trim())||'',dl=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?';':(first.includes('\t')?'\t':',');
+  const rows=parseCSV(text,dl);const hi=rows.findIndex(r=>r.some(c=>/date|data/i.test(c))&&r.some(c=>/amount|debit|paid out|money out|value|kwota|description|details|name|transaction/i.test(c)));
+  const h=hi>=0?rows[hi].map(c=>c.trim().toLowerCase()):[],body=rows.slice(hi+1);
+  const find=(...res)=>{for(const re of res){const i=h.findIndex(c=>re.test(c));if(i>=0)return i}return -1};
+  let iD=find(/^date$/,/transaction date|posting date|completed date|started date/,/date|data/),iOut=find(/paid out|money out|debit|withdrawal/),iIn=find(/paid in|money in|credit/),iA=find(/^amount$/,/amount|value|kwota/),
+    iT=find(/description|details|merchant|payee|^name$|narrative|reference|memo|transaction/);
+  if(iT===iD)iT=-1;
+  if(hi<0){const s0=body[0]||[];iD=s0.findIndex(c=>toISO(c));iA=s0.findIndex((c,i)=>i!==iD&&/^\s*[-(£]?[\d,]+\.\d{2}\)?-?\s*$/.test(c));iT=s0.findIndex((c,i)=>i!==iD&&i!==iA&&/[a-z]/i.test(c))}
+  const out=[];body.forEach(r=>{const date=toISO(r[iD]);if(!date)return;let amt=NaN,kind='out';
+    if(iOut>=0&&String(r[iOut]||'').trim())amt=Math.abs(num(r[iOut]));else if(iIn>=0&&String(r[iIn]||'').trim()){amt=Math.abs(num(r[iIn]));kind='in'}else if(iA>=0&&iOut<0){const a=num(r[iA]);if(a<0)amt=-a;else if(a>0){amt=a;kind='in'}}
+    if(!(amt>0))return;const desc=(iT>=0?r[iT]:r.filter((c,i)=>i!==iD&&i!==iA&&i!==iOut&&i!==iIn).join(' ')).replace(/\s+/g,' ').trim().slice(0,120);
+    out.push({date,desc,amount:Math.round(amt*100)/100,kind})});return finalize(out)}
+function renderImp(){if(!IMP.length){$('imp').hidden=true;return}$('imp').hidden=false;const on=IMP.filter(x=>x.on);
+  const ex=IMP.filter(x=>x.kind!=='in'),inn=IMP.filter(x=>x.kind==='in'),oe=on.filter(x=>x.kind!=='in'),oi=on.filter(x=>x.kind==='in');
+  $('impSum').textContent=`Wydatki: ${ex.length} (zaznaczone ${oe.length} na ${gbp(oe.reduce((t,x)=>t+x.amount,0),2)}). Wpływy: ${inn.length} (od firm zaznaczone ${oi.length} na ${gbp(oi.reduce((t,x)=>t+x.amount,0),2)}).`+(IMP.some(x=>x.dup)?' To, co już masz, jest odznaczone.':'')+(IMP.some(x=>x.priv)?` Prywatne pominięte: ${IMP.filter(x=>x.priv).length}.`:'')+(IMPH.length?` Ukryłem ${IMPH.length}, które już dodałeś albo przejrzałeś.`:'');
+  $('impShow').hidden=!IMPH.length;
+  $('impT').innerHTML=IMP.map((x,i)=>x.kind==='in'?`<tr class="${x.on?'':'off'}"><td><input type="checkbox" data-ion="${i}" ${x.on?'checked':''} aria-label="Dodaj ten wpływ"></td><td>${dPL(x.date)}</td><td>${esc(x.desc)}${x.dup?' <span class="pill">już jest</span>':''}</td><td>${x.inDiary?'<span class="pill">już w Diary (runy)</span>':x.biz?`<span class="pill on"><i></i>przychód od firmy</span>`:`<span class="pill">${x.own?'Twój przelew':'osoba prywatna'}, pomijam</span>`}</td><td class="r net">+${gbp(x.amount,2)}</td></tr>`:`<tr class="${x.on?'':'off'}"><td><input type="checkbox" data-ion="${i}" ${x.on?'checked':''} aria-label="Dodaj ten wydatek"></td><td>${dPL(x.date)}</td><td>${esc(x.desc)}${x.dup?' <span class="pill">już jest</span>':''}</td><td><select data-icat="${i}" aria-label="Kategoria"><option value="">— wybierz —</option><option value="__priv" ${x.priv?'selected':''}>🚫 Prywatne, pomiń</option>${CATS.map(c=>`<option value="${c}" ${c===x.cat?'selected':''}>${cl(c)}</option>`).join('')}</select></td><td class="r">${gbp(x.amount,2)}</td></tr>`).join('')}
+$('bankIn').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const isPdf=/\.pdf$/i.test(f.name)||f.type==='application/pdf';
+  if(isPdf){toast('Czytam PDF…');try{IMP=await readBankPdf(f)}catch(x){toast(x&&x.message==='load'?'Nie udało się wczytać czytnika PDF. Sprawdź internet albo użyj CSV.':'Nie umiem odczytać tego PDF. Jeśli to skan (zdjęcie), pobierz z banku wersję CSV.');return}}
+  else{try{IMP=readBank(await f.text())}catch(x){IMP=[]}}
+  if(!IMP.length){toast(isPdf?'Nie znalazłem w tym PDF wydatków. Spróbuj wyciągu w CSV.':'Nie znalazłem w tym pliku wydatków. Potrzebna jest kolumna z datą i kwotą.');return}Y.seen=Y.seen||[];const seen=new Set(Y.seen);const hide=x=>x.dup||(seen.has(sig(x))&&!(x.kind==='in'&&x.biz&&cashBasis()));IMPH=IMP.filter(hide);IMP=IMP.filter(x=>!hide(x));
+  if(!IMP.length){toast(`Wszystko z tego wyciągu już masz (${IMPH.length} pozycji). Nic nowego do dodania.`);IMPH=[];return}
+  renderImp();$('imp').scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('impT').addEventListener('change',e=>{const t=e.target;if(t.dataset.ion!=null)IMP[+t.dataset.ion].on=t.checked;if(t.dataset.icat!=null){const x=IMP[+t.dataset.icat],k=pkey(x.desc);Y.priv=Y.priv||[];
+    if(t.value==='__priv'){if(k&&!Y.priv.includes(k))Y.priv.push(k);IMP.forEach(o=>{if(o.kind!=='in'&&pkey(o.desc)===k){o.priv=true;o.cat='';o.on=false}});if(k)toast(`Zapamiętane: „${k}” to prywatne. Przy następnym wyciągu pominę to samo.`)}
+    else{if(x.priv){Y.priv=Y.priv.filter(p=>p!==k);IMP.forEach(o=>{if(pkey(o.desc)===k)o.priv=false})}x.cat=t.value;if(t.value&&!x.dup)x.on=true}saveY();renderPrivList()}renderImp()});
+$('impAll').onclick=()=>{IMP.forEach(x=>x.on=x.kind==='in'?x.biz&&!x.inDiary&&!x.dup:!!x.cat&&!x.dup);renderImp()};$('impShow').onclick=()=>{IMP=IMP.concat(IMPH.map(x=>Object.assign(x,{on:false})));IMPH=[];renderImp()};
+$('impNo').onclick=()=>{IMP=[];IMPH=[];renderImp()};
+$('impGo').onclick=async()=>{const sel=IMP.filter(x=>x.on);if(!sel.length){toast('Nic nie jest zaznaczone.');return}
+  if(sel.some(x=>x.kind!=='in'&&!x.cat)){toast('Wybierz kategorię dla każdego zaznaczonego wydatku.');return}
+  const b=$('impGo');b.disabled=true;const done=new Set();
+  try{for(const x of sel){if(x.kind==='in'){const net=S.vatMode&&S.vatMode!=='none'?x.amount/1.2:x.amount;Y.inc.push({id:'k'+Date.now()+done.size,date:x.date,client:x.client,job:'wpływ z banku',amount:Math.round(net*100)/100,gross:x.amount,miles:0,who:Y.me,bank:true});done.add(x);continue}
+      const it={date:x.date,category:x.cat,amount:x.amount,notes:x.desc.slice(0,120),who:Y.me};
+      Y.exp.push(Object.assign({id:'b'+Date.now()+done.size},it));done.add(x)}}
+  catch(x){toast('Brak połączenia. Część wydatków nie jest zapisana, zostały na liście.')}
+  finally{b.disabled=false;b.textContent='Dodaj zaznaczone'}
+  Y.seen=(Y.seen||[]).concat(IMP.filter(x=>done.has(x)||!x.on).map(sig)).slice(-5000);saveY();IMP=IMP.filter(x=>!done.has(x)&&x.on);IMPH=[];renderImp();render2();if(done.size)toast(`Dodane: ${done.size}.`)};
+
+function renderPrivList(){const l=Y.priv||[];$('privList').innerHTML=l.length?l.map((k,i)=>`<span class="pill">${esc(k)} <button type="button" class="x" data-unpriv="${i}" aria-label="Usuń z prywatnych" style="padding:0 2px;font-size:.9rem">✕</button></span>`).join(''):'<span class="hint">Nic jeszcze. Przy wczytywaniu wyciągu wybierz „Prywatne, pomiń”, a zapamiętam ten sklep.</span>'}
+$('privList').addEventListener('click',e=>{const b=e.target.closest('[data-unpriv]');if(!b)return;Y.priv.splice(+b.dataset.unpriv,1);saveY();renderPrivList()});
+renderPrivList();
+const p60Of=y=>{const r=(Y.p60||{})[y];return r&&(!r.who||r.who===Y.me)?r:null};
+/* a past year's Self Assessment bill; an estimate gets the PAYE job added in (a filed return already has it) */
+function histBill(y){const h=(Y.hist||{})[y];if(!h)return null;const w=p60Of(y);if(!w||/^z zeznania/.test(h.src||''))return h.tax;
+  return Math.max(0,taxP(h.profit+w.g,0)+class4(h.profit)-w.t)}
+/* income tax with relief-at-source pension paid: the basic and higher bands grow by the gross amount paid in */
+function taxP(x,g){x=Math.max(0,x);g=Math.max(0,g||0);const adj=Math.max(0,x-g);let pa=12570;if(adj>100000)pa=Math.max(0,12570-(adj-100000)/2);
+  const t=Math.max(0,x-pa),bb=37700+g,ht=125140-pa+g,b=Math.min(t,bb),h=Math.min(Math.max(0,t-bb),Math.max(0,ht-bb)),a=Math.max(0,t-b-h);return b*.2+h*.4+a*.45}
+/* the business profit that gives a take-home goal, with the job and pension as they are */
+function needP(T,W,poa,penG){let lo=-50000,hi=400000;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(allCol(m,W,poa,penG).net<T)lo=m;else hi=m}return hi}
+function goalPlan(D){const T=+Y.goal||0;if(!T)return null;const poa=+(Y.poa||{})[D.y]||0,B=allCol(D.pY,D.payeY,poa,D.penG),P=needP(T,D.payeY,poa,D.penG);
+  const wdLeft=D.rem*((+S.dpw||5)/7)*((+S.wpy||47)/52),wd=Math.max(1,D.days),runCost=D.costsRun/wd,nowTurn=D.days?D.workTurn/wd:0;
+  const restP=P-D.profit,perDay=wdLeft>0?restP/wdLeft:0,turnDay=wdLeft>0?(perDay+runCost)/(1+D.kr):0;
+  return {T,B,P,gross:P+D.payeY.g+(+S.otherInc||0),gap:T-B.net,wdLeft,turnDay,nowTurn,restP,pace:T*D.elapsed/365,netNow:allCol(D.profit,D.payeNow,poa,D.penG).net}}
+/* ---------- the whole year: business and PAYE together, as Self Assessment adds them up ---------- */
+function allCol(P,W,poa,penG){const oth=+S.otherInc||0,inc=Math.max(0,P)+W.g+oth,itax=taxP(inc,penG),c4=class4(Math.max(0,P)),paid=W.t+W.n,due=itax-W.t+c4-poa,net=P+W.g-itax-c4-W.n-W.p;
+  return {P,G:W.g,oth,inc,itax,c4,ni:W.n,taxAll:itax+c4+W.n,paid,poa,due,net,pen:W.p}}
+function renderAll(D){const poa=+(Y.poa||{})[D.y]||0,A=allCol(D.profit,D.payeNow,poa,D.penG),B=allCol(D.pY,D.payeY,poa,D.penG);window.__A=B;
+  $('allLab').textContent=`${tyLab(D.y)}: firma + etat (PAYE)`;
+  $('allKpi').innerHTML=[[gbp(B.inc,0),'dochód w roku (prognoza)',''],[gbp(B.taxAll,0),'podatek i NI razem',''],[B.due<0?'zwrot '+gbp(-B.due,0):gbp(B.due,0),B.due<0?'HMRC odda Ci (Self Assessment)':'zostanie do zapłaty w Self Assessment',''],[gbp(B.net,0),`na rękę w roku, ${gbp(B.net/12,0)} / mies.`,'dark']]
+    .map(([b,s,c])=>`<div class="tile ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+  const row=(l,a,b,cls)=>`<tr class="${cls||''}"><td>${l}</td><td class="r">${a}</td><td class="r">${b}</td></tr>`,m=v=>v?'−'+gbp(v,0):gbp(0,0);
+  $('allT').innerHTML=row('Zysk z firmy',gbp(A.P,0),gbp(B.P,0))+row('Brutto z etatu (PAYE)',gbp(A.G,0),gbp(B.G,0))+(A.oth?row('Inne dochody',gbp(A.oth,0),gbp(B.oth,0)):'')
+    +row('<b>Dochód razem</b>',`<b>${gbp(A.inc,0)}</b>`,`<b>${gbp(B.inc,0)}</b>`,'tot')
+    +row('Podatek dochodowy (od całości)',m(A.itax),m(B.itax))+row('Class 4 NI (firma)',m(A.c4),m(B.c4))+row('NI z etatu',m(A.ni),m(B.ni))
+    +row('<b>Podatek i NI razem</b>',`<b>${m(A.taxAll)}</b>`,`<b>${m(B.taxAll)}</b>`,'tot')
+    +row('Już pobrane przez agencję (podatek + NI)',gbp(A.paid,0),gbp(B.paid,0))+(poa?row('Zapłacone zaliczki na ten rok',gbp(A.poa,0),gbp(B.poa,0)):'')
+    +row('<b>Zostaje do zapłaty w Self Assessment</b>',`<b>${A.due<0?'zwrot '+gbp(-A.due,0):gbp(A.due,0)}</b>`,`<b>${B.due<0?'zwrot '+gbp(-B.due,0):gbp(B.due,0)}</b>`,'tot')
+    +(A.pen||B.pen?row('Emerytura z etatu (odkładasz)',m(A.pen),m(B.pen)):'')
+    +row('<b>Na rękę razem</b>',`<b class="net">${gbp(A.net,0)}</b>`,`<b class="net">${gbp(B.net,0)}</b>`,'tot');
+  const G=goalPlan(D);$('goalBox').hidden=!G;if(G){const pct=Math.max(0,Math.min(100,G.B.net/G.T*100)),mark=Math.min(100,G.pace/G.T*100),ok=G.gap<=0;
+    $('goalBox').innerHTML=`<div class="row" style="justify-content:space-between"><b>Cel: ${gbp(G.T,0)} na rękę w ${tyLab(D.y)}</b><span class="pill ${ok?'on':''}" style="${ok?'':'color:var(--bad);background:var(--badsoft)'}"><i></i>${ok?'na kursie':'brakuje '+gbp(G.gap,0)}</span></div>
+      <div class="bar" role="img" aria-label="Prognoza ${Math.round(pct)}% celu"><i style="width:${pct}%"></i><u style="left:${mark}%" title="gdzie powinieneś być dziś"></u></div>
+      <p class="hint" style="margin:0">Prognoza do 5 kwietnia: <b>${gbp(G.B.net,0)}</b> na rękę (${Math.round(pct)}% celu). Cel to około ${gbp(G.gross,0)} dochodu przed podatkiem, w tym zysk z firmy ${gbp(G.P,0)}.
+      ${D.done?'':ok?` Masz zapas około ${gbp(-G.gap,0)}. Utrzymaj tempo.`:G.wdLeft>5?` Do celu firma musi dać jeszcze <b>${gbp(G.restP,0)}</b> zysku w około ${Math.round(G.wdLeft)} dniach pracy: średnio <b>${gbp(G.turnDay,0)} obrotu bez VAT dziennie</b>${G.nowTurn?` (teraz ${gbp(G.nowTurn,0)})`:''}. Kreska na pasku pokazuje, gdzie powinieneś być dziś.`:' Do końca roku zostało za mało dni, żeby nadrobić.'}</p>`}
+  $('allNote').innerHTML=`Tak liczy HMRC: dochód z firmy i z etatu jest dodawany, kwota wolna (£12,570) jest jedna na oba, a podatek pobrany przez agencję odlicza się w Self Assessment. ${D.payeY.proj?'Etat w prognozie liczę dalej, bo ostatni payslip jest z ostatnich 3 tygodni.':D.payeNow.g?'Etatu nie doliczam do kwietnia, bo ostatni payslip jest starszy niż 3 tygodnie.':'Dodaj payslipy niżej, a policzę etat razem z firmą.'}${(()=>{const over=B.inc-50270-D.penG;return over>50?` <b>Próg 40%:</b> według prognozy ${gbp(over,0)} dochodu wpada w podatek 40%. Wpłać do ${dPL((D.y+1)+'-04-05')} około <b>${gbp(over/1.25,0)}</b> netto na prywatną emeryturę (państwo dopłaci 25%), a cały dochód zostanie w 20%: oszczędzisz około ${gbp(over*0.2,0)} podatku w Self Assessment.`:D.penG?` Wpłaty na emeryturę (${gbp(D.penG,0)} brutto) już poszerzają Twój próg 20%.`:''})()} VAT jest osobno i nie wchodzi do tych kwot.${(()=>{const pv=histBill(D.y-1);return pv!=null&&pv>=1000&&!poa?` Część z „do zapłaty” płacisz z góry zaliczkami: 2 × ${gbp(pv/2,0)} (31.01.${D.y+1} i 31.07.${D.y+1}). Po zapłacie wpisz je w Ustawieniach.`:''})()}`}
+
+/* ---------- PAYE (agency): kept apart from self-employed, used only for the tax estimate ---------- */
+const payeOf=y=>(Y.paye||[]).filter(x=>x.who===Y.me&&tyOf(x.date)===y);
+function renderPaye(D){const L=payeOf(D.y).sort((a,b)=>b.date.localeCompare(a.date)),W=D.payeNow,g=W.g,tax=W.t,ni=W.n,pen=W.p,net=W.net;renderP60();
+  $('pKpi').innerHTML=[[gbp(g,0),W.ytd?'brutto z etatu (z P60, od 6 kwietnia)':'brutto z etatu w tym roku',''],[gbp(tax,0),'podatek pobrany przez agencję',''],[gbp(ni,0),'NI pobrane',''],[gbp(net,0),'na rękę z etatu','dark']].map(([b,s,c])=>`<div class="tile ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+  $('payT').innerHTML=L.map(x=>`<tr><td>${dPL(x.date)}</td><td>${esc(x.agency||'')}</td><td class="r">${gbp(x.gross,2)}</td><td class="r minus">−${gbp(x.tax,2)}</td><td class="r minus">−${gbp(x.ni,2)}</td><td class="r minus">${x.pension?'−'+gbp(x.pension,2):''}</td><td class="r net">${gbp(x.net,2)}</td><td><button type="button" class="x" data-dpay="${esc(x.id)}" aria-label="Usuń payslip">✕</button></td></tr>`).join('')||'<tr><td colspan="8" class="minus">Brak payslipów w tym roku.</td></tr>';
+  $('pNote').innerHTML=g?`Etat wliczam tylko do podatku: ${gbp(g,0)} z etatu zużywa kwotę wolną, więc zysk z firmy jest opodatkowany wyżej. Podatek od firmy w prognozie już to uwzględnia. Razem z etatem na rękę w tym roku masz <b>${gbp(D.net+net,0)}</b>.`:'Dodaj payslip, a uwzględnię etat w podatku od firmy.'}
+function paySet(o){$('pDate').value=o.date||today();$('pAg').value=o.agency||'';['gross','tax','ni','pension','net'].forEach(k=>$('p_'+k).value=o[k]!=null&&o[k]!==''?o[k]:'')}
+['gross','tax','ni','pension'].forEach(k=>$('p_'+k).addEventListener('input',()=>{const v=k=>+$('p_'+k).value||0;if(!$('p_net').dataset.touched)$('p_net').value=(v('gross')-v('tax')-v('ni')-v('pension')).toFixed(2)}));
+$('p_net').addEventListener('input',()=>{$('p_net').dataset.touched=1});
+$('payForm').onsubmit=e=>{e.preventDefault();const v=k=>Math.round((+$('p_'+k).value||0)*100)/100,it={id:'p'+Date.now(),date:$('pDate').value,who:Y.me,agency:$('pAg').value.trim(),gross:v('gross'),tax:v('tax'),ni:v('ni'),pension:v('pension'),net:v('net')};
+  if(!(it.gross>0)){toast('Wpisz kwotę brutto z payslipa.');return}if(!it.net)it.net=Math.round((it.gross-it.tax-it.ni-it.pension)*100)/100;
+  Y.paye=(Y.paye||[]).filter(x=>!(x.who===it.who&&x.date===it.date&&Math.abs(x.gross-it.gross)<0.005));Y.paye.push(it);saveY();paySet({agency:it.agency});delete $('p_net').dataset.touched;toast(`Dodany payslip ${dPL(it.date)}: ${gbp(it.gross,2)} brutto.`);render2()};
+$('payT').addEventListener('click',e=>{const b=e.target.closest('[data-dpay]');if(!b)return;const id=b.dataset.dpay;
+  if(delArm!==id){delArm=id;b.textContent='Usuń?';b.style.color='var(--bad)';setTimeout(()=>{if(delArm===id){delArm='';render2()}},3000);return}delArm='';Y.paye=Y.paye.filter(x=>x.id!==id);saveY();render2()});
+/* payslip PDF: find the labels and take the amount on the same line (this period, not year to date) */
+function parsePayslip(lines){const R={},isM=i=>/^[-(]?£?(\d{1,3}(,\d{3})+|\d+)\.\d{2}\)?-?$/.test(i.s.trim()),mv=i=>parseFloat(i.s.replace(/[^\d.]/g,''));
+  const rows=lines.map(l=>({t:l.map(i=>i.s).join(' '),items:l}));
+  /* amounts under a "YTD" / "Year to date" heading are totals for the year, never this pay */
+  const ytdX=[];lines.forEach((l,j)=>l.forEach((i,k)=>{if(k>0&&/^(ytd|year to date|to date|cumulative)$/i.test(i.s.trim())){let e=j+1;while(e<lines.length&&e<j+6&&!/^total/i.test(lines[e].map(x=>x.s).join(' ')))e++;ytdX.push({c:(i.x+i.r)/2,j,e})}}));
+  const ok=(o,j)=>isM(o)&&!ytdX.some(y=>j>y.j&&j<=y.e&&Math.abs((o.x+o.r)/2-y.c)<35);
+  /* a label is one text piece, or two next to each other ("Gross" "Pay"); its value sits to the right on the same line,
+     or under it in the same column (payslips with a row of headings and a row of amounts) */
+  const grab=(key,res,bad)=>{for(const re of [].concat(res)){if(R[key]!=null)return;
+    for(let i=0;i<rows.length;i++){const it=rows[i].items;
+      for(let k=0;k<it.length;k++){if(isM(it[k]))continue;const one=it[k].s,two=k+1<it.length&&!isM(it[k+1])&&!re.test(it[k+1].s)?one+' '+it[k+1].s:one;
+        const lab=re.test(one)&&!(bad&&bad.test(one))?{x:it[k].x,r:it[k].r,end:k}:re.test(two)&&!(bad&&bad.test(two))?{x:it[k].x,r:it[k+1].r,end:k+1}:null;if(!lab)continue;
+        let nextLab=it.slice(lab.end+1).findIndex(o=>!isM(o)&&/[a-z]{3}/i.test(o.s));nextLab=nextLab<0?it.length:lab.end+1+nextLab;
+        const right=it.slice(lab.end+1,nextLab).find(o=>ok(o,i));if(right){R[key]=mv(right);return}
+        const cx=(lab.x+lab.r)/2;
+        for(let j=i+1;j<Math.min(rows.length,i+4);j++){const c=rows[j].items.filter(o=>ok(o,j)).map(o=>({o,d:Math.abs((o.x+o.r)/2-cx)})).filter(o=>o.d<Math.max(45,(lab.r-lab.x)))
+            .sort((a,b)=>a.d-b.d)[0];if(c){R[key]=mv(c.o);return}}}}}};
+  const NOT=/year to date|\bytd\b|to date|employer|\ber\b|ref(erence)?\b|number|\bno\.?\b|code|letter|category|table|period no|taxable|cumulative|for tax|for ni/i;
+  grab('gross',[/^total payments?$|^total pay$|^total gross( pay)?$|^gross pay$|^gross$/i,/total gross|gross pay|total pay(ments)?\b|gross for (the )?period/i],NOT);
+  grab('tax',[/^paye( tax)?$|^tax$|^tax deducted$|^tax paid$|^income tax$/i,/paye tax|income tax|tax deducted|tax paid/i],NOT);
+  grab('ni',[/^ni$|^nic$|^ee ni$|^ee nic$|^ni contributions?$|^employee ni$|^employee nic$|^national insurance$/i,/national insurance|ni contribution|employee nic?\b/i],NOT);
+  grab('pension',/pension|nest\b|auto.?enrol/i,NOT);
+  grab('net',[/^net pay$|^net$|^take home( pay)?$|^net payable$/i,/net pay|take home|net payable|amount paid/i],NOT);
+  const all=rows.map(r=>r.t);let date='';for(const t of all){if(/pay ?date|payment date|date paid|process(ing)? date|paid on/i.test(t)){const m=t.match(/\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}\s[A-Za-z]{3}[a-z]*\s\d{4}/);if(m){date=toISO(m[0]);if(date)break}}}
+  if(!date)for(const t of all){const m=t.match(/\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{4}|\d{1,2}\s[A-Za-z]{3}[a-z]*\s\d{4}/);if(m&&(date=toISO(m[0])))break}
+  const ag=all.find(t=>/\b(ltd|limited|recruitment|resourcing|staffing|personnel|agency|llp|plc)\b/i.test(t)&&t.length<70);
+  return {date,agency:ag?ag.replace(/\s+/g,' ').trim():'',gross:R.gross,tax:R.tax,ni:R.ni,pension:R.pension,net:R.net}}
+$('payIn').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;
+  if(fs.length>1){toast(`Czytam ${fs.length} payslipów…`);let added=0,bad=[];
+    for(const f of fs){try{const o=parsePayslip(await pdfLines(new Uint8Array(await f.arrayBuffer()))),ded=(o.tax||0)+(o.ni||0)+(o.pension||0);
+        if(o.date&&o.gross>0&&o.net!=null&&Math.abs(o.gross-ded-o.net)<=0.05){const it={id:'p'+Date.now()+added,date:toISO(o.date)||o.date,who:Y.me,agency:o.agency,gross:o.gross,tax:o.tax||0,ni:o.ni||0,pension:o.pension||0,net:o.net};
+          Y.paye=(Y.paye||[]).filter(x=>!(x.who===it.who&&x.date===it.date&&Math.abs(x.gross-it.gross)<0.005));Y.paye.push(it);added++}else bad.push(f.name)}catch(x){bad.push(f.name)}}
+    saveY();render2();toast(`Dodane ${added} payslipów.`+(bad.length?` Nie odczytałem pewnie: ${bad.join(', ')}. Dodaj je pojedynczo.`:''));return}
+  const f=fs[0];if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){toast('Wczytuję tylko payslipy w PDF. Ze zdjęcia przepisz kwoty ręcznie albo wyślij je Claude w czacie.');return}
+  toast('Czytam payslip…');try{const o=parsePayslip(await pdfLines(new Uint8Array(await f.arrayBuffer())));if(o.gross==null&&o.net==null){toast('Nie znalazłem kwot w tym PDF. Jeśli to skan, przepisz je ręcznie.');return}
+    paySet(o);delete $('p_net').dataset.touched;if(o.net!=null)$('p_net').dataset.touched=1;$('payForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+    const ded=(o.tax||0)+(o.ni||0)+(o.pension||0),gap=o.gross!=null&&o.net!=null?o.gross-ded-o.net:0;
+    toast(o.gross!=null&&ded>o.gross?'Potrącenia wyszły większe niż brutto: coś źle odczytałem. Popraw kwoty ręcznie.':Math.abs(gap)>0.05?`Brutto minus potrącenia różni się od kwoty na rękę o ${gbp(gap,2)} (np. inne potrącenia albo zły odczyt). Sprawdź kwoty.`:'Kwoty się zgadzają. Sprawdź i kliknij „Dodaj payslip”.')}
+  catch(x){toast(x&&x.message==='load'?'Nie udało się wczytać czytnika PDF. Sprawdź internet.':'Nie umiem odczytać tego PDF. Przepisz kwoty ręcznie.')}};
+paySet({});
+
+/* ---------- P60 / yearly PAYE summary (Excel or CSV): totals per tax year ---------- */
+async function unzipEntry(buf,want){const u=new Uint8Array(buf),dv=new DataView(buf);let e=u.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<0)throw new Error('zip');
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const out={};
+  for(let i=0;i<n;i++){const m=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;if(!want(name))continue;
+    const ln=dv.getUint16(lo+26,true),le=dv.getUint16(lo+28,true),data=u.subarray(lo+30+ln+le,lo+30+ln+le+cs);
+    out[name]=m===0?new TextDecoder().decode(data):await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text()}
+  return out}
+async function readXlsx(buf){const f=await unzipEntry(buf,n=>n==='xl/sharedStrings.xml'||/^xl\/worksheets\/sheet\d+\.xml$/.test(n));
+  const P=t=>new DOMParser().parseFromString(t,'application/xml'),ss=f['xl/sharedStrings.xml']?[...P(f['xl/sharedStrings.xml']).getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join('')):[];
+  const sh=Object.keys(f).filter(n=>/sheet\d+\.xml$/.test(n)).sort((a,b)=>parseInt(a.match(/\d+/))-parseInt(b.match(/\d+/)))[0];if(!sh)return [];
+  const col=r=>{let c=0;for(const ch of r.replace(/\d+/g,''))c=c*26+ch.charCodeAt(0)-64;return c-1};
+  return [...P(f[sh]).getElementsByTagName('row')].map(row=>{const a=[];[...row.getElementsByTagName('c')].forEach(c=>{const t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0],is=c.getElementsByTagName('is')[0];
+    a[col(c.getAttribute('r')||'A')]=t==='s'?ss[+(v&&v.textContent)]:t==='inlineStr'?(is?is.textContent:''):(v?v.textContent:'')});return a.map(x=>x==null?'':String(x))})}
+function readP60Rows(rows){const hi=rows.findIndex(r=>r.some(c=>/tax ?year/i.test(c))&&r.some(c=>/gross/i.test(c)));if(hi<0)return [];
+  const h=rows[hi].map(c=>String(c).trim().toLowerCase()),f=(...res)=>{for(const re of res){const i=h.findIndex(c=>re.test(c));if(i>=0)return i}return -1};
+  const iy=f(/tax ?year/),ig=f(/^total gross pay$/,/^gross pay$/,/total gross/,/gross/),it=f(/^income tax$/,/^tax( deducted| paid)?$/,/income tax/),inn=f(/^employee nic?s?$/,/employee ni/,/^nic?$/),ip=f(/net employee pension/,/employee pension/,/^pension$/),inet=f(/^net pay$/,/net pay/),isl=f(/^student loan$/);
+  const n=v=>{const x=parseFloat(String(v).replace(/[£,\s]/g,''));return isFinite(x)?Math.round(x*100)/100:0};
+  return rows.slice(hi+1).map(r=>{const m=String(r[iy]||'').match(/(20\d{2})/);if(!m||!(n(r[ig])>0))return null;
+    return {y:+m[1],g:n(r[ig]),t:it>=0?n(r[it]):0,n:inn>=0?n(r[inn]):0,p:ip>=0?n(r[ip]):0,net:inet>=0?n(r[inet]):0,sl:isl>=0?n(r[isl]):0}}).filter(Boolean)}
+$('p60In').onchange=async e=>{const fl=e.target.files[0];e.target.value='';if(!fl)return;
+  try{let rows;if(/\.xlsx$/i.test(fl.name))rows=await readXlsx(await fl.arrayBuffer());else rows=parseCSV(await fl.text(),(await fl.slice(0,500).text()).includes(';')?';':',');
+    const L=readP60Rows(rows);if(!L.length){toast('Nie znalazłem w tym pliku kolumn „Tax Year” i „Gross Pay”.');return}
+    const cur=tyOf(today());Y.p60=Y.p60||{};L.forEach(r=>{Y.p60[r.y]=Object.assign(r,{asOf:r.y>=cur?today():`${r.y+1}-04-05`,who:Y.me,file:fl.name.slice(0,60)})});
+    saveY();render2();toast(`Wczytane lata: ${L.map(r=>tyLab(r.y)).join(', ')}. Sprawdź tabelę „Podsumowania roczne”.`)}
+  catch(x){toast('Nie umiem odczytać tego pliku. Zapisz go jako CSV albo wyślij Claude w czacie.')}};
+$('p60T').addEventListener('click',e=>{const b=e.target.closest('[data-dp60]');if(!b)return;const k=b.dataset.dp60;
+  if(delArm!=='p'+k){delArm='p'+k;b.textContent='Usuń?';b.style.color='var(--bad)';setTimeout(()=>{if(delArm==='p'+k){delArm='';render2()}},3000);return}delArm='';delete Y.p60[k];saveY();render2()});
+function renderP60(){const L=Object.entries(Y.p60||{}).filter(([y,r])=>!r.who||r.who===Y.me).sort((a,b)=>b[0]-a[0]),cur=tyOf(today());
+  $('p60Box').hidden=!L.length;
+  $('p60T').innerHTML=L.map(([y,r])=>`<tr><td><b>${tyLab(+y)}</b>${+y>=cur?' <span class="pill">do dziś</span>':''}</td><td class="r">${gbp(r.g,2)}</td><td class="r minus">−${gbp(r.t,2)}</td><td class="r minus">−${gbp(r.n,2)}</td><td class="r minus">${r.p?'−'+gbp(r.p,2):''}</td><td class="r net">${gbp(r.net,2)}</td><td><button type="button" class="x" data-dp60="${y}" aria-label="Usuń rok">✕</button></td></tr>`).join('')}
+
+/* ---------- Doradca: tips worked out from your own figures, money first ---------- */
+function quarterOf(dateStr){const q=+Y.vatQ||3,ty=+dateStr.slice(0,4),tm=+dateStr.slice(5,7);let em=tm;while((em-q)%3!==0)em++;let ey=ty;if(em>12){em-=12;ey++}
+  let sm=em-2,sy=ey;if(sm<1){sm+=12;sy--}return {s:`${sy}-${String(sm).padStart(2,'0')}-01`,e:iso(Date.UTC(ey,em,0)),due:iso(Date.UTC(ey,em+1,7))}}
+function advise(D){const T=[],add=(id,lvl,title,text,gain)=>{if(!(Y.dismiss||{})[id])T.push({id,lvl,title,text,gain:gain||0})};
+  const t=today(),nowMs=Date.parse(t),day=864e5,cur=D.y===tyOf(t),poa=+(Y.poa||{})[D.y]||0,B=allCol(D.pY,D.payeY,poa,D.penG);
+  const yearDays=(+S.dpw||5)*(+S.wpy||47),wd=Math.max(1,D.days),sum=(L,f)=>L.reduce((a,x)=>a+(f?f(x):(+x.amount||0)),0),cat=c=>D.expC.filter(x=>x.category===c);
+  const perDay=v=>v/wd,yearly=v=>perDay(v)*yearDays;
+  /* --- tax --- */
+  const over=B.inc-50270-D.penG;
+  if(cur&&D.dd>=30&&over>200)add('pen40','money','Zejdź poniżej progu 40%',`Według prognozy ${gbp(over,0)} dochodu wpada w podatek 40%. Wpłać do ${dPL((D.y+1)+'-04-05')} około ${gbp(over/1.25,0)} netto na prywatną emeryturę (PensionBee). Państwo dopłaci 25%, a w Self Assessment odzyskasz kolejne 20%.`,over*0.2);
+  const pb=histBill(D.y-1);
+  if(cur&&pb!=null&&pb>=1000){const sa=B.itax-D.payeY.t+B.c4;const fullYear=(+D.op.inc||0)>0||D.inc.some(x=>Date.parse(x.date)<=Date.parse(`${D.y}-05-21`));if(sa<pb*0.8&&D.dd>60&&fullYear)add('sa303','money','Możesz obniżyć zaliczki (SA303)',`Zaliczki na ${tyLab(D.y)} to 2 × ${gbp(pb/2,0)}, a prognoza rachunku za ten rok to ${gbp(sa,0)}. Przez wniosek SA303 (online w HMRC) obniżysz zaliczki i zostawisz w kieszeni około ${gbp(pb-Math.max(0,sa),0)} do czasu rozliczenia. Uwaga: jeśli zaniżysz za bardzo, HMRC doliczy odsetki.`,0);
+    if(sa>pb*1.25&&D.dd>=45)add('saup','warn','Ten rok wyjdzie drożej niż zaliczki',`Prognoza rachunku za ${tyLab(D.y)} to ${gbp(sa,0)}, a zaliczki tylko 2 × ${gbp(pb/2,0)}. 31.01.${D.y+2} dojdzie dopłata około ${gbp(sa-pb,0)} plus wyższa zaliczka na kolejny rok. Odkładaj na podatek około ${gbp(sa/12,0)} miesięcznie.`,0)}
+  if(D.payeNow.g>0&&D.payeNow.t===0&&B.inc>12570)add('payetax','warn','Etat bez podatku',`Agencja nie pobiera podatku od etatu (${gbp(D.payeNow.g,0)} w tym roku), a kwotę wolną zużywa już firma. Cały podatek od etatu (około ${gbp(D.payeNow.g*0.2,0)}) przyjdzie w Self Assessment. Odkładaj go albo poproś HMRC o zmianę kodu podatkowego u agencji.`,0);
+  /* --- VAT --- */
+  if(D.vm==='frs'){const q=quarterOf(t),inQ=x=>x.date>=q.s&&x.date<=q.e,gq=sum(D.inc.filter(inQ))*1.2,goods=sum(D.expC.filter(x=>inQ(x)&&['Fuel','Tyres','Repairs & service','Equipment'].includes(x.category)));
+    const stdVat=D.turn*0.2-sum(D.expC.filter(x=>VATC.has(x.category)),x=>(+x.amount||0)/6),frsVat=D.frsDue;
+    if(D.turn>2000&&stdVat<frsVat-150)add('vatstd','money','Standardowy VAT byłby tańszy',`W tym roku na flat rate oddajesz ${gbp(frsVat,0)} VAT, a na standardowym VAT oddałbyś około ${gbp(stdVat,0)}, bo masz dużo kosztów z VAT. Porozmawiaj z księgową o zmianie schematu.`,(frsVat-stdVat)*365/Math.max(30,D.dd));
+    else if(D.turn>2000&&D.keep>0)add('vatfrs','info','Flat rate się opłaca',`Na flat rate zostaje Ci z VAT ${gbp(D.keep,0)} w tym roku. Standardowy VAT dałby mniej (około ${gbp(Math.max(0,D.turn*0.2-stdVat),0)} różnicy).`,0)}
+  const G=goalPlan(D);if(G&&cur&&D.dd>=30&&G.gap>100)add('goal','warn',`Cel ${gbp(G.T,0)}: brakuje ${gbp(G.gap,0)}`,`Prognoza na ${tyLab(D.y)} to ${gbp(G.B.net,0)} na rękę. Żeby dojść do celu, potrzebujesz średnio ${gbp(G.turnDay,0)} obrotu bez VAT dziennie przez resztę roku${G.nowTurn?` (teraz ${gbp(G.nowTurn,0)})`:''}. Najszybciej: łącz 2–3 runy dziennie, dodaj jeden dzień w tygodniu albo podnieś stawki na runach, które płacą najmniej za milę.`,0);
+  /* --- FRS checks, quarter by quarter (the mistakes accountants see most) --- */
+  if(D.vm==='frs'){const cq=quarterOf(t),pq=quarterOf(iso(Date.parse(cq.s)-day)),GOODS=['Fuel','Tyres','Repairs & service','Equipment'],pctNow=frsPctNow();
+    const lct=(q,label,final)=>{const C=vatCalc(q),goods=sum(C.exp.filter(x=>GOODS.includes(x.category))),lim=Math.max(C.G*0.02,250);
+      if(C.G>500&&goods<lim)add('lct'+q.s,'warn',`Test limited cost trader: ${label}`,`Towary (paliwo, części, opony, sprzęt) w kwartale ${dPL(q.s)}–${dPL(q.e)}: ${gbp(goods,2)}, a próg to ${gbp(lim,2)} (2% obrotu z VAT, minimum £250). ${final?`Za ten kwartał obowiązuje <b>16.5%</b>: Box 1 = ${gbp(r2(C.G*0.165),2)} zamiast ${gbp(C.B[1],2)}.`:`Jeśli tak zostanie do ${dPL(q.e)}, za ten kwartał zapłacisz 16.5% zamiast ${pctNow}%.`} Najpierw sprawdź, czy wczytałeś wszystkie tankowania (karta paliwowa UK Fuels też się liczy). Usługi (ubezpieczenie, telefon, ULEZ, księgowa) się nie liczą.`,0)};
+    lct(pq,'poprzedni kwartał',true);lct(cq,'bieżący kwartał',false);
+    /* the last quarter: report mismatch, payment */
+    const P=vatCalc(pq),rep=(Y.vatRep||{})[pq.s];
+    if(rep){const bad=[1,4,5,6].filter(k=>rep.boxes[k]!=null&&Math.abs(rep.boxes[k]-P.B[k])>0.01);if(bad.length)add('rep'+pq.s,'warn','Deklaracja VAT różni się od raportu księgowej',`Kwartał ${dPL(pq.s)}–${dPL(pq.e)}: różnice w Box ${bad.join(', ')}. Zwykle brakuje wpływu z banku albo wpływ wpadł w inny kwartał. Porównaj listę w sekcji VAT.`,0)}
+    const paid=sum(P.pay);if(P.B[5]>0&&nowMs>Date.parse(pq.due)&&!paid)add('vatpay'+pq.s,'warn','Nie widzę płatności VAT',`Kwartał ${dPL(pq.s)}–${dPL(pq.e)} (${gbp(P.B[5],2)}) był do zapłaty ${dPL(pq.due)}. Jeśli zapłaciłeś, dodaj wydatek „Opłata VAT do HMRC”. Jeśli nie, zapłać od razu: za spóźnienie naliczają odsetki.`,0);
+    /* is the VAT benefit bigger than what it costs to do the returns */
+    const keepQ=P.G-P.G/1.2-P.B[1],accQ=sum(expAll().filter(x=>x.who===Y.me&&x.category==='Accountant'&&x.date>=pq.s&&x.date<=pq.e));
+    if(P.G>0&&accQ>keepQ)add('vatworth'+pq.s,'info','VAT dał mniej niż kosztowała księgowa',`W kwartale ${dPL(pq.s)}–${dPL(pq.e)} zostało Ci z VAT ${gbp(keepQ,2)}, a księgowa kosztowała ${gbp(accQ,2)}. Przy tak małym obrocie składaj deklarację sam albo negocjuj opłatę.`,0);
+    /* turnover that is easy to forget */
+    const sold=D.inc.filter(x=>/sprzedaż vana|vehicle sale|van sale|webuyany|motorway|cinch|carwow|bca\b/i.test((x.client||'')+' '+(x.job||'')));
+    if(sold.length)add('vansale','warn','Sprzedaż vana to też obrót VAT',`Wpływ ${sold.map(x=>`${dPL(x.date)} ${gbp(x.gross||x.amount*1.2,0)}`).join(', ')} wygląda na sprzedaż pojazdu. Na flat rate wchodzi do obrotu (10% od kwoty z VAT), chyba że przy zakupie odzyskałeś VAT. Wtedy doliczasz pełne 20% poza flat rate. Zapytaj księgową przed deklaracją.`,0);
+    const runsUnpaid=D.cash&&D.diaryTurn-D.recv>0?D.diaryTurn-D.recv:0;
+    /* capital items: the only VAT you can take back */
+    const capQ=vatCalc(cq).exp.filter(x=>x.category==='Capital purchase');capQ.forEach(x=>{const a=+x.amount||0;
+      if(a>=2000)add('cap'+x.id,'info','Zakup sprzętu: odzyskaj VAT',`${dPL(x.date)} ${esc(x.notes||'zakup')} ${gbp(a,2)}: VAT ${gbp(a/6,2)} odzyskasz w Box 4 tego kwartału (jest już w wyliczeniu). Zachowaj fakturę VAT. Przy sprzedaży tego sprzętu doliczysz 20% VAT poza flat rate.`,0);
+      else add('cap'+x.id,'info','Zakup poniżej £2,000: bez zwrotu VAT',`${dPL(x.date)} ${gbp(a,2)}: na flat rate VAT odzyskuje się tylko przy pojedynczym zakupie od £2,000 z VAT. Ten zakup liczy się jako koszt do podatku dochodowego, bez zwrotu VAT.`,0)});
+    /* first-year 1% discount */
+    if(S.frsFirst){const reg=Y.vatReg?Date.parse(Y.vatReg):0;if(!reg)add('frs1','warn','Zniżka 1% za pierwszy rok: sprawdź datę',`Masz włączone „Pierwszy rok na VAT (−1%)”. Zniżka obowiązuje tylko do pierwszej rocznicy rejestracji do VAT. Wpisz datę rejestracji w sekcji VAT, a kalkulator sam ją wyłączy po roku.`,0);
+}
+    /* the two bases should match: FRS Cash goes by money received */
+    if(!D.cash)add('basis','info','VAT liczy się od wpływów',`Podatek dochodowy masz ustawiony „po dacie runu”, a VAT (FRS Cash) liczy się od dnia wpływu na konto. To może być poprawne, ale upewnij się z księgową, że obie metody są celowe.`,0);
+    /* leaving FRS: £230,000 incl. VAT in the next 12 months */
+    const last12=sum(incAll().filter(x=>x.who===Y.me&&!x.diary&&nowMs-Date.parse(x.date)<=365*day),x=>x.bank&&x.gross?+x.gross:(+x.amount||0)*1.2);
+    if(last12>200000)add('frs230','warn','Zbliżasz się do limitu flat rate',`Obrót z VAT z ostatnich 12 miesięcy: ${gbp(last12,0)}. Powyżej £230,000 musisz wyjść z flat rate.`,0);
+  }
+  /* --- costs --- */
+  const ulez=sum(cat('ULEZ'));if(ulez>0&&D.days>=3){const yr=yearly(ulez);add('ulez','money','ULEZ kosztuje Cię ok. '+gbp(yr,0)+' rocznie',`Płacisz ULEZ średnio ${gbp(perDay(ulez),2)} za dzień pracy. Van spełniający normę Euro 6 (diesel zwykle od września 2016) jeździ bez ULEZ. Przy obecnym tempie taki van zwraca się z samego ULEZ w ${Math.max(1,Math.round(8000/Math.max(1,yr)*12))} miesięcy przy cenie około £8,000. Sprawdź swój van na stronie TfL (vehicle checker).`,yr)}
+  const fuel=sum(cat('Fuel'));if(fuel>0&&D.miles>200){const ppm=fuel/D.miles,mpg=D.miles*4.54609*(+S.fuel||1.45)/fuel;
+    if(ppm>0.27)add('fuel','money','Paliwo: '+gbp(ppm,2)+' na milę',`To około ${Math.round(mpg)} mpg przy £${(+S.fuel||1.45).toFixed(2)}/l, czyli drożej niż typowy van (£0.22–0.25 na milę). Tankuj w supermarketach (Asda, Tesco, Sainsbury's, Morrisons), zwykle kilka pensów taniej na litrze, sprawdzaj ciśnienie w oponach co tydzień i nie trzymaj silnika na biegu jałowym przy dropach. Zejście do £0.24/milę to około ${gbp((ppm-0.24)*D.miles/wd*yearDays,0)} rocznie.`,(ppm-0.24)*D.miles/wd*yearDays);
+    else add('fuelok','info','Paliwo w normie',`Płacisz ${gbp(ppm,2)} za milę (około ${Math.round(mpg)} mpg). Pilnuj tego wyniku: kalkulator ostrzeże, gdy wzrośnie.`,0)}
+  const fines=D.fines;if(fines>0)add('fines','warn','Mandaty: '+gbp(fines,0)+' w tym roku',`Mandaty nie zmniejszają podatku, więc każdy funt to czysta strata. PCN zapłacony w ciągu 14 dni kosztuje połowę. Przy dropach w Londynie sprawdzaj zasady zatok rozładunkowych (loading bay) i godziny na znakach.`,0);
+  const ins=sum(cat('Insurance'));if(ins>0){const mo=ins/Math.max(1,D.dd/30.4);if(mo>150)add('ins','money','Ubezpieczenie: ok. '+gbp(mo,0)+' miesięcznie',`Przed odnowieniem porównaj oferty hire & reward (np. przez brokera kurierskiego). 10–20% taniej to ${gbp(mo*12*0.15,0)} rocznie. Płatność roczna z góry jest zwykle tańsza niż miesięczna.`,mo*12*0.15)}
+  const ph=sum(cat('Phone'));if(ph>0){const mo=ph/Math.max(1,D.dd/30.4);if(mo>25)add('phone','money','Telefon: ok. '+gbp(mo,0)+' miesięcznie',`SIM-only z dużym pakietem danych kosztuje dziś £10–15 miesięcznie. Pamiętaj też, że kosztem jest tylko część firmowa telefonu.`,(mo-15)*12)}
+  const recent=D.expRun.filter(x=>nowMs-Date.parse(x.date)<=30*day),older=D.expRun.filter(x=>nowMs-Date.parse(x.date)>30*day&&nowMs-Date.parse(x.date)<=120*day);
+  if(recent.length>3&&older.length>3){const a=sum(recent)/30,b=sum(older)/90;if(a>b*1.25)add('costup','warn','Koszty rosną',`W ostatnich 30 dniach wydajesz ${gbp(a*30.4,0)} miesięcznie, a wcześniej ${gbp(b*30.4,0)}. Sprawdź w Wydatkach, która kategoria urosła.`,0)}
+  /* --- income --- */
+  const runs=D.work.filter(x=>+x.miles>0&&+x.amount>0);if(runs.length>=5){const ppm=runs.map(x=>x.amount/x.miles).sort((a,b)=>a-b),med=ppm[Math.floor(ppm.length/2)],low=runs.filter(x=>x.amount/x.miles<med*0.6);
+    if(low.length)add('lowruns','money',`${low.length} ${low.length===1?'run płaci':'runy płacą'} mało za milę`,`Mediana to ${gbp(med,2)} za milę, a te runy dają poniżej ${gbp(med*0.6,2)}: ${low.slice(0,4).map(x=>`${dPL(x.date)} ${esc(x.client)} ${gbp(x.amount,0)} / ${Math.round(x.miles)} mil`).join('; ')}. Długie trasy z jednym dropem warto wyceniać od mili (np. dopłata za strefę albo minimum za milę) albo łączyć z innymi dropami.`,sum(low,x=>med*0.6*x.miles-x.amount)*365/Math.max(30,D.dd))}
+  const wFirst=D.work.map(x=>x.date).sort()[0],wSpan=wFirst?Math.max(1,(nowMs-Date.parse(wFirst))/day+1):0;
+  if(D.days>=5&&wSpan>=14){const perWeek=D.days/(wSpan/7),netDay=(D.workTurn*(1+D.kr)-D.costsRun)*(1-D.rate)/wd;
+    if(perWeek<4.5)add('days','money',`Pracujesz średnio ${perWeek.toFixed(1)} dnia w tygodniu`,`Każdy dodatkowy dzień w tygodniu to około ${gbp(netDay*4.33,0)} na rękę miesięcznie (${gbp(netDay,0)} za dzień). Wolne dni możesz zapełnić np. pracą przez agencję albo dla drugiego klienta (1st Class).`,netDay*52*Math.max(0,5-perWeek))}
+  const offers=(S.offers||[]).filter(o=>o.net>0&&!/dziennik|ubiegły rok/i.test(o.name));if(D.days>=5){const myNet=(D.workTurn*(1+D.kr)-D.costsRun)*(1-D.rate)/wd,best=offers.slice().sort((a,b)=>b.net-a.net)[0];
+    if(best&&best.net>myNet*1.1)add('offer','money',`Oferta „${esc(best.name)}” daje więcej`,`Twój średni dzień daje ${gbp(myNet,0)} na rękę, a zapisana oferta „${esc(best.name)}” ${gbp(best.net,0)}. Policz ją jeszcze raz z prawdziwymi kosztami z dziennika („Przenieś średnie do kalkulatora”).`,(best.net-myNet)*yearDays);
+    const hr=myNet/(+Y.hpd||+S.hpd||8.75);if(hr<12.21)add('minwage','warn','Stawka poniżej płacy minimalnej',`Na rękę wychodzi ${gbp(hr,2)} za godzinę. Negocjuj stawki albo ogranicz runy, które płacą mało za milę.`,0)}
+  if(D.cash&&D.diaryTurn-D.recv>500)add('unpaid','info','Czeka na zapłatę '+gbp(D.diaryTurn-D.recv,0),`Za runy z Diary nie wpłynęło jeszcze około ${gbp(D.diaryTurn-D.recv,0)} bez VAT. Sprawdź w panelu, które faktury są niezapłacone po terminie, i przypomnij klientowi.`,0);
+  if(D.cash&&D.diaryTurn>0){const lastIn=D.inc.map(x=>x.date).sort().pop();if(!lastIn||nowMs-Date.parse(lastIn)>35*day)add('stmt','warn','Wczytaj nowy wyciąg',`Ostatni wpływ w kalkulatorze jest ${lastIn?'z '+dPL(lastIn):'— brak'}. Przy cash basis bez wyciągów przychód i podatek wychodzą za nisko.`,0)}
+  /* --- deadlines --- */
+  if(D.vm!=='none'){const q=quarterOf(iso(nowMs-40*day));const left=(Date.parse(q.due)-nowMs)/day;if(left>=0&&left<=21){const g=sum(D.inc.filter(x=>x.date>=q.s&&x.date<=q.e))*1.2;add('vatdue','warn',`Deklaracja VAT do ${dPL(q.due)}`,`Kwartał ${dPL(q.s)}–${dPL(q.e)}: do zapłaty około ${gbp(D.vm==='frs'?g*D.pct:g/6,0)}.`,0)}}
+  const jan=`${+t.slice(0,4)+(t.slice(5,7)>'01'?1:0)}-01-31`,toJan=(Date.parse(jan)-nowMs)/day;if(toJan>=0&&toJan<=75){const y0=+jan.slice(0,4)-2,b0=histBill(y0),p0=+(Y.poa||{})[y0]||0,b1=histBill(y0+1);
+    if(b0!=null)add('jan','warn',`31 stycznia: Self Assessment`,`Do ${dPL(jan)} złóż zeznanie za ${tyLab(y0)} i zapłać: dopłatę około ${gbp(b0-p0,0)}${b0>=1000?` plus 1. zaliczkę na ${tyLab(y0+1)} ${gbp(b0/2,0)}`:''}. Razem około ${gbp(b0-p0+(b0>=1000?b0/2:0),0)}.`,0)}
+  if(!(Y.dismiss||{}).van2023&&(Y.hist||{})[2024])add('van2023','money','Van z 2023 (£8,500): czy był odliczony?','W zeznaniu 2024/25 nie widać capital allowances. Jeśli nikt nie odliczył vana, poprawka zeznania 2024/25 (do 31.01.2027) i 18% rocznie dalej to około £1,000 mniej podatku przez 3 lata. Zapytaj księgową.',350);
+  const lvl={warn:0,money:1,info:2};return T.sort((a,b)=>lvl[a.lvl]-lvl[b.lvl]||b.gain-a.gain)}
+function renderAdvice(D){const L=advise(D),hid=Object.keys(Y.dismiss||{}).length,pill={warn:['Uwaga','var(--bad)','var(--badsoft)'],money:['Więcej pieniędzy','var(--gdark)','var(--gsoft)'],info:['Info','var(--muted)','var(--soft)']};
+  const tot=L.filter(x=>x.lvl==='money').reduce((t,x)=>t+x.gain,0);
+  $('advSum').textContent=L.length?`${L.length} ${L.length===1?'podpowiedź':L.length<5?'podpowiedzi':'podpowiedzi'}${tot>50?` · razem około ${gbp(tot,0)} rocznie do zyskania`:''}`:'Na razie nic do poprawy. Doradca sprawdza Twoje dane przy każdej zmianie.';
+  $('advL').innerHTML=L.map(x=>`<div class="adv" style="border-left-color:${pill[x.lvl][1]}"><div class="row" style="justify-content:space-between;gap:8px"><b>${x.title}</b><span class="row"><span class="pill" style="color:${pill[x.lvl][1]};background:${pill[x.lvl][2]}">${pill[x.lvl][0]}${x.gain>50?` · ~${gbp(x.gain,0)}/rok`:''}</span><button type="button" class="x" data-dadv="${x.id}" aria-label="Ukryj tę podpowiedź">✕</button></span></div><p class="hint" style="margin:6px 0 0">${x.text}</p></div>`).join('');
+  $('advShow').hidden=!hid;$('advShow').textContent=`Pokaż ukryte (${hid})`;
+  const tb=document.querySelector('.tabs [data-go="sum"]'),nw=L.filter(x=>x.lvl==='warn').length;if(tb)tb.textContent=nw?`Podsumowanie (${nw}!)`:'Podsumowanie'}
+$('advL').addEventListener('click',e=>{const b=e.target.closest('[data-dadv]');if(!b)return;Y.dismiss=Y.dismiss||{};Y.dismiss[b.dataset.dadv]=1;saveY();render2()});
+$('advShow').onclick=()=>{Y.dismiss={};saveY();render2()};
+
+/* ---------- VAT return (VAT 100) per quarter, the way the accountant's VAT Audit Report lays it out ---------- */
+const r2=v=>Math.round((+v+(v>=0?1e-9:-1e-9))*100)/100;
+function vatQuarters(){const out=[],old=Object.keys(Y.vatRep||{}).sort()[0]||'9999';let d=today();for(let i=0;i<40;i++){const q=quarterOf(d);out.push(q);d=iso(Date.parse(q.s)-864e5);if(i>=7&&q.s<=old)break}return out}
+let vatSel='';
+/* FRS Cash: VAT is due on money received in the quarter; box 1 = flat rate % of the VAT-inclusive takings, box 6 = those takings */
+function vatCalc(q){const vm=S.vatMode||'none',pct=frsPctNow()/100,me=Y.me;
+  const sales=incAll().filter(x=>x.who===me&&!x.diary&&x.date>=q.s&&x.date<=q.e).map(x=>{const g=x.bank&&x.gross?+x.gross:(+x.amount||0)*1.2;return {date:x.date,name:x.client,net:r2(g/1.2),vat:r2(g-g/1.2),gross:r2(g),frs:r2(g*pct)}}).sort((a,b)=>a.date.localeCompare(b.date));
+  const exp=expAll().filter(x=>x.who===me&&x.date>=q.s&&x.date<=q.e&&!NOCOST.has(x.category));
+  const cap=exp.filter(x=>x.category==='Capital purchase'&&(+x.amount||0)>=2000),runs=incAll().filter(x=>x.who===me&&x.diary&&x.date>=q.s&&x.date<=q.e);
+  const G=sales.reduce((t,x)=>t+x.gross,0),N=sales.reduce((t,x)=>t+x.net,0),V=sales.reduce((t,x)=>t+x.vat,0);
+  const B={};if(vm==='std'){const vin=exp.filter(x=>VATC.has(x.category));B[1]=r2(V);B[4]=r2(vin.reduce((t,x)=>t+(+x.amount||0)/6,0));B[6]=r2(N);B[7]=r2(exp.reduce((t,x)=>t+(VATC.has(x.category)?(+x.amount||0)/1.2:(+x.amount||0)),0))}
+  else{B[1]=r2(G*pct);B[4]=r2(cap.reduce((t,x)=>t+(+x.amount||0)/6,0));B[6]=r2(G);B[7]=r2(cap.reduce((t,x)=>t+(+x.amount||0)/1.2,0))}
+  B[2]=0;B[3]=r2(B[1]+B[2]);B[5]=r2(B[3]-B[4]);B[8]=0;B[9]=0;
+  const pay=expAll().filter(x=>x.who===me&&x.category==='HMRC VAT'&&x.date>q.e&&Date.parse(x.date)<=Date.parse(q.due)+45*864e5);
+  return {q,vm,pct,sales,exp,cap,runs,B,G,pay}}
+const BOXES={1:'VAT należny od sprzedaży',2:'VAT od nabyć z UE (Irlandia Płn.)',3:'Razem VAT należny',4:'VAT do odzyskania z zakupów',5:'VAT do zapłaty (lub zwrotu)',6:'Sprzedaż netto',7:'Zakupy netto',8:'Dostawy do UE (Irlandia Płn.)',9:'Nabycia z UE (Irlandia Płn.)'};
+function renderVat(){if(!$('vatBox'))return;if(document.activeElement!==$('vatReg'))$('vatReg').value=Y.vatReg||'';const Qs=vatQuarters();if(!vatSel)vatSel=quarterOf(iso(Date.now()-40*864e5)).s;
+  $('vatQ').innerHTML=Qs.map(q=>`<option value="${q.s}" ${q.s===vatSel?'selected':''}>${dPL(q.s)} – ${dPL(q.e)}${q.s===Qs[0].s?' (bieżący)':''}</option>`).join('');
+  const q=Qs.find(x=>x.s===vatSel)||Qs[0],C=vatCalc(q),rep=(Y.vatRep||{})[q.s];
+  if(C.vm==='none'){$('vatBox').innerHTML='<p class="hint">Masz ustawione „Nie jestem na VAT” (zakładka Kalkulator oferty → Podatek i NI).</p>';return}
+  const left=Math.round((Date.parse(q.due)-Date.parse(today()))/864e5),paid=C.pay.reduce((t,x)=>t+(+x.amount||0),0);
+  const status=paid&&Math.abs(paid-C.B[5])<=1?'<span class="pill on"><i></i>zapłacone</span>':paid?`<span class="pill">zapłacono ${gbp(paid,2)}</span>`:left<0?'<span class="pill" title="Dodaj płatność jako „Opłata VAT do HMRC”, a status się zmieni">termin minął · brak płatności w wydatkach</span>':`<span class="pill">termin za ${left} dni</span>`;
+  const mark=(k)=>{if(!rep||rep.boxes[k]==null)return '';const ok=Math.abs(rep.boxes[k]-C.B[k])<=0.01;return `<td class="r">${gbp(rep.boxes[k],2)}</td><td>${ok?'<span style="color:var(--gdark);font-weight:800">✓</span>':`<span style="color:var(--bad);font-weight:800" title="różnica ${gbp(C.B[k]-rep.boxes[k],2)}">✗</span>`}</td>`};
+  $('vatBox').innerHTML=`<div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="hint">Schemat: <b>${C.vm==='frs'?`Flat Rate ${Math.round(C.pct*1000)/10}%, Cash (od wpływów)`:'Standardowy VAT, Cash (od wpływów)'}</b> · deklaracja i płatność do <b>${dPL(q.due)}</b> · <button type="button" class="btn sm" id="vatRateGo">Zmień stawkę</button></span>${status}</div>
+    ${renderVatCheck(q,C)}
+    <div class="tbl"><table><thead><tr><th>Box</th><th></th><th class="r">Kalkulator</th>${rep?'<th class="r">Księgowa</th><th></th>':''}</tr></thead><tbody>
+    ${[1,2,3,4,5,6,7,8,9].map(k=>`<tr class="${k===5?'tot':''}"><td><b>${k}</b></td><td>${BOXES[k]}${k===6&&C.vm==='frs'?' <span class="src">(na flat rate z VAT)</span>':''}</td><td class="r">${k===5?'<b>':''}${gbp(C.B[k],2)}${k===5?'</b>':''}</td>${mark(k)}</tr>`).join('')}</tbody></table></div>
+    ${rep?`<p class="note" style="margin-top:8px">Raport księgowej z ${dPL(rep.prepared||q.e)}${rep.scheme?` (${esc(rep.scheme)})`:''}: ${[1,3,4,5,6,7].every(k=>rep.boxes[k]==null||Math.abs(rep.boxes[k]-C.B[k])<=0.01)?'<b>wszystkie pola się zgadzają.</b>':'<b>są różnice</b>: najczęściej brakuje wpływu z banku w kalkulatorze albo wpływ jest w innym kwartale. Porównaj listę sprzedaży poniżej z raportem.'} <button type="button" class="btn sm" id="vatRepDel">Usuń raport</button></p>`:''}
+    <div class="sub">Sprzedaż w kwartale (Box 1 i 6): ${C.sales.length}</div>
+    <div class="tbl"><table><thead><tr><th>Data wpływu</th><th>Od kogo</th><th class="r">Netto</th><th class="r">VAT 20%</th><th class="r">Z VAT</th>${C.vm==='frs'?`<th class="r">FRS ${Math.round(C.pct*1000)/10}%</th>`:''}</tr></thead><tbody>
+    ${C.sales.map(x=>`<tr><td>${dPL(x.date)}</td><td>${esc(x.name)}</td><td class="r">${gbp(x.net,2)}</td><td class="r">${gbp(x.vat,2)}</td><td class="r">${gbp(x.gross,2)}</td>${C.vm==='frs'?`<td class="r">${gbp(x.frs,2)}</td>`:''}</tr>`).join('')||`<tr><td colspan="6" class="minus">Brak wpływów w tym kwartale.${C.runs.length?` W Diary są runy (${C.runs.length}), ale na FRS Cash VAT liczy się od wpływów na konto: wczytaj wyciąg.`:''}</td></tr>`}
+    ${C.sales.length>1?`<tr class="tot"><td>Razem</td><td></td><td class="r">${gbp(C.sales.reduce((t,x)=>t+x.net,0),2)}</td><td class="r">${gbp(C.sales.reduce((t,x)=>t+x.vat,0),2)}</td><td class="r">${gbp(C.G,2)}</td>${C.vm==='frs'?`<td class="r">${gbp(C.B[1],2)}</td>`:''}</tr>`:''}</tbody></table></div>
+    <p class="note" style="margin-top:8px">${C.vm==='frs'?`Na flat rate koszty nie wchodzą do deklaracji (w tym kwartale ${C.exp.length} wydatków na ${gbp(C.exp.reduce((t,x)=>t+(+x.amount||0),0),2)}, u księgowej to „Transactions without tax”). Wyjątek: zakup sprzętu powyżej £2,000 (Box 4)${C.cap.length?`: ${C.cap.length} w tym kwartale`:''}.`:'Na standardowym VAT Box 4 to VAT z kosztów z fakturą VAT (paliwo, serwis, opony, sprzęt, telefon, księgowa, parking).'} Kwoty zaokrąglam jak HMRC: od sumy kwartału, do pensa. Wysyłając do HMRC, Box 6–9 podajesz w pełnych funtach bez pensów (np. ${gbp(Math.floor(C.B[6]),0)}).</p>`;
+  $('vatRateGo').onclick=()=>{go('calc');const el=S.vatMode==='frs'?$('frsPct'):$('vatMode');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.focus(),300)};
+  renderVatHist();renderVatWorth();if(document.activeElement!==$('vatFee'))$('vatFee').value=Y.vatFee==null?85:Y.vatFee;
+  const d=$('vatRepDel');if(d)d.onclick=()=>{delete Y.vatRep[q.s];saveY();renderVat()}}
+/* the 9 boxes plus the sales behind them, as a file a bridging program (MTD) can import: a digital link, no retyping */
+$('vatCsv').onclick=()=>{const q=vatQuarters().find(x=>x.s===vatSel)||vatQuarters()[0],C=vatCalc(q),EN={1:'VAT due on sales and other outputs',2:'VAT due on acquisitions from EU (NI)',3:'Total VAT due',4:'VAT reclaimed on purchases',5:'Net VAT to pay or reclaim',6:'Total value of sales excluding VAT (FRS: including VAT)',7:'Total value of purchases excluding VAT',8:'Total value of supplies to EU (NI)',9:'Total value of acquisitions from EU (NI)'};
+  const L=[['Period start','Period end','Due date','Scheme'].map(csvq).join(','),[q.s,q.e,q.due,C.vm==='frs'?`Flat Rate ${Math.round(C.pct*1000)/10}% cash`:'Standard cash'].map(csvq).join(','),'',['Box','Description','Amount','Amount to submit (boxes 6-9 whole pounds)'].map(csvq).join(',')];
+  [1,2,3,4,5,6,7,8,9].forEach(k=>L.push([k,EN[k],C.B[k].toFixed(2),k>=6?String(Math.floor(C.B[k])):C.B[k].toFixed(2)].map(csvq).join(',')));
+  L.push('',['Date received','Customer','Net','VAT','Gross','FRS amount'].map(csvq).join(','));C.sales.forEach(x=>L.push([x.date,x.name,x.net.toFixed(2),x.vat.toFixed(2),x.gross.toFixed(2),x.frs.toFixed(2)].map(csvq).join(',')));
+  dl(`VAT100-${Y.me}-${q.s}-${q.e}.csv`,'\ufeff'+L.join('\r\n'),'text/csv');toast('Plik VAT 100 gotowy. Wczytaj go w programie MTD i sprawdź kwoty przed wysłaniem.')};
+$('vatFee').onchange=()=>{Y.vatFee=+$('vatFee').value||0;saveY();renderVatWorth()};
+$('vatReg').onchange=()=>{Y.vatReg=$('vatReg').value;saveY();render2()};
+$('vatQ').onchange=()=>{vatSel=$('vatQ').value;renderVat()};
+/* the accountant's VAT Audit Report (PDF): period and boxes 1-9, to put side by side */
+
+/* ---------- documents from past years: the accountant's VAT reports and tax returns become the history ---------- */
+async function readVatReport(f){const lines=(await pdfLines(new Uint8Array(await f.arrayBuffer()))).map(l=>l.map(i=>i.s).join(' ').replace(/\s+/g,' ').trim());
+  const boxes={};lines.forEach(t=>{const m=t.match(/^box\s*(\d)\b/i);if(m&&boxes[m[1]]==null){const v=t.match(/(-?[\d,]+\.\d{2})\s*$/);if(v)boxes[m[1]]=parseFloat(v[1].replace(/,/g,''))}});
+  /* the other layout (VAT Return from accounting software): "VAT due in the period on sales … 1 998.28", "Total value of sales … 6 9,982" */
+  if(boxes[1]==null)lines.forEach(t=>{const m=t.match(/^(.*[a-z].*?)\s([1-9])\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*$/i);if(m&&/vat|value|total/i.test(m[1])&&!/page\s/i.test(t)&&boxes[m[2]]==null)boxes[m[2]]=parseFloat(m[3].replace(/,/g,''))});
+  const all=lines.join('\n'),pm=all.match(/period\s+(\d{1,2}\s+[A-Za-z]+(?:\s+\d{4})?)\s*[-–]\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i)||all.match(/(\d{1,2}\s+[A-Za-z]+(?:\s+\d{4})?)\s*[-–]\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})/);
+  /* QuickBooks' own VAT 100 report has only months: "July - September, 2026" */
+  const MI={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11},mm=!pm&&all.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*(\d{4})?\s*[-–]\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,?\s*(\d{4})/i);
+  if((!pm&&!mm)||boxes[1]==null)throw new Error('notvat');
+  let e2,s2;if(pm){e2=toISO(pm[2]);s2=toISO(/\d{4}/.test(pm[1])?pm[1]:pm[1]+' '+pm[2].slice(-4));if(s2>e2)s2=toISO(pm[1]+' '+(+pm[2].slice(-4)-1))}
+  else{const y2=+mm[4],m1=MI[mm[1].slice(0,3).toLowerCase()],m2=MI[mm[3].slice(0,3).toLowerCase()],y1=mm[2]?+mm[2]:(m1>m2?y2-1:y2);s2=iso(Date.UTC(y1,m1,1));e2=iso(Date.UTC(y2,m2+1,0))}
+  const q=quarterOf(e2),sch=(all.match(/VAT Scheme\s*:?\s*([^\n]+)/i)||[])[1],rate=(all.match(/Flat Rate Percentage[^\n]*?(\d+(?:\.\d+)?)\s*%/i)||[])[1],prep=(all.match(/Prepared on\s*\n?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i)||[])[1];
+  return {key:q.s,rec:{boxes,s:s2,e:e2,scheme:(sch?sch.trim():'')+(rate&&!/\d+%/.test(sch||'')?' '+rate+'%':''),prepared:prep?toISO(prep):'',file:f.name.slice(0,80)}}}
+/* a tax return or the accountant's tax computation: year, turnover, profit, job, tax, payments on account */
+function readTaxReturn(lines){const L=lines.map(l=>l.map(i=>i.s).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean),all=L.join('\n');
+  const MON=/\(?-?£?\d{1,3}(?:,\d{3})*(?:\.\d{2})?\)?|\(?-?£?\d+(?:\.\d{2})?\)?/g;
+  const last=t=>{const m=(t.replace(/\b20\d\d\s*[-–\/]\s*\d\d\b|\b\d{1,2}\s+[A-Za-z]+\s+20\d\d\b|\b20\d\d\b|\d+%|x\s*\d+%?/gi,' ').match(MON)||[]).filter(x=>/\d/.test(x));if(!m.length)return null;const v=m[m.length-1];return Math.abs(parseFloat(v.replace(/[^\d.]/g,'')))};
+  const get=(...res)=>{for(const re of res)for(let i=0;i<L.length;i++)if(re.test(L[i])){const v=last(L[i]);if(v!=null)return v;const n=L[i+1]&&last(L[i+1]);if(n!=null&&!/[a-z]{4}/i.test(L[i+1].replace(/£|gbp/gi,'')))return n}return null};
+  let y=null,m;if(m=all.match(/year ended\s+5\s+April\s+(20\d\d)/i))y=+m[1]-1;else if(m=all.match(/\b(20\d\d)\s*[-–\/]\s*(\d\d)\b/))y=+m[1];
+  const turn=get(/^turnover\b/i,/total turnover|takings, fees, sales|income from self-employment/i);
+  const profit=get(/^net profit\/\(loss\) per accounts/i,/^net profit/i,/^profit from self-employment/i,/^taxable profit/i);
+  let costs=get(/^total (allowable )?expenses/i);if(costs==null&&turn!=null&&profit!=null)costs=Math.round((turn-profit)*100)/100;
+  const tax=get(/total tax and national insurance contributions due/i,/^total liability for year/i,/^income tax due\b/i,/^total tax due/i);
+  const emp=get(/^gross pay\b/i,/^pay from all employments/i,/^employment income/i),empTax=get(/tax taken off (pay|employment)/i,/^uk tax taken off/i);
+  const poa=L.filter(t=>/payment on account made/i.test(t)).reduce((s,t)=>s+(last(t)||0),0);
+  return {y,turn,profit,costs,tax,emp,empTax,poa:Math.round(poa*100)/100}}
+$('saIn').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;toast('Czytam dokumenty…');const ok=[],bad=[];
+  for(const f of fs){try{const R=readTaxReturn(await pdfLines(new Uint8Array(await f.arrayBuffer())));
+      if(R.y==null||(R.profit==null&&R.tax==null)){bad.push(f.name);continue}
+      Y.hist=Y.hist||{};const h=Y.hist[R.y]||{};Y.hist[R.y]=Object.assign(h,{turn:R.turn!=null?R.turn:(h.turn||0),costs:R.costs!=null?R.costs:(h.costs||0),profit:R.profit!=null?R.profit:(h.profit||0),tax:R.tax!=null?R.tax:(h.tax||0),src:'z zeznania',file:f.name.slice(0,80)});
+      if(R.emp>0){Y.p60=Y.p60||{};const w=Y.p60[R.y];if(!w||!(w.g>0))Y.p60[R.y]={y:R.y,g:R.emp,t:R.empTax||0,n:0,p:0,net:R.emp-(R.empTax||0),asOf:`${R.y+1}-04-05`,who:Y.me,file:f.name.slice(0,60)}}
+      if(R.poa>0){Y.poa=Y.poa||{};Y.poa[R.y]=R.poa}
+      Y.docs=(Y.docs||[]).filter(d=>!(d.type==='SA'&&d.y===R.y));Y.docs.push({type:'SA',y:R.y,file:f.name.slice(0,80),at:today()});ok.push(tyLab(R.y))}
+    catch(x){bad.push(f.name)}}
+  saveY();render2();toast((ok.length?`Dodane zeznania: ${ok.join(', ')}.`:'')+(bad.length?` Nie odczytałem: ${bad.join(', ')} (skan albo inny układ: wyślij go Claude w czacie).`:''))};
+$('vatRepIn').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;toast(fs.length>1?`Czytam ${fs.length} raporty…`:'Czytam raport…');const ok=[],bad=[];let lastKey='';
+  for(const f of fs){try{const r=await readVatReport(f);Y.vatRep=Y.vatRep||{};const old=Y.vatRep[r.key];if(old){if(!r.rec.scheme)r.rec.scheme=old.scheme||'';if(!r.rec.prepared)r.rec.prepared=old.prepared||''}Y.vatRep[r.key]=r.rec;lastKey=r.key;ok.push(r.rec);
+      Y.docs=(Y.docs||[]).filter(d=>!(d.type==='VAT'&&d.q===r.key));Y.docs.push({type:'VAT',q:r.key,file:f.name.slice(0,80),at:today()})}
+    catch(x){if(x&&x.message==='load'){toast('Nie udało się wczytać czytnika PDF. Sprawdź internet.');return}bad.push(f.name)}}
+  if(lastKey)vatSel=lastKey;saveY();renderVat();
+  if(fs.length===1&&ok.length){const q=quarterOf(ok[0].e),C=vatCalc(q),b=ok[0].boxes,dif=[1,3,4,5,6,7].filter(k=>b[k]!=null&&Math.abs(b[k]-C.B[k])>0.01);
+    toast(dif.length?`Raport za ${dPL(q.s)}–${dPL(q.e)}: różnice w Box ${dif.join(', ')}.`:`Raport za ${dPL(q.s)}–${dPL(q.e)}: wszystko się zgadza.`)}
+  else toast(`Dodane raporty VAT: ${ok.length}.`+(bad.length?` Nie odczytałem: ${bad.join(', ')}.`:''));$('vatBox').scrollIntoView({behavior:'smooth',block:'nearest'})};
+function renderVatHist(){const E=Object.entries(Y.vatRep||{}).sort((a,b)=>b[0].localeCompare(a[0]));$('vatHistBox').hidden=!E.length;if(!E.length)return;
+  const byY={};E.forEach(([k,r])=>{const y=tyOf(r.e||quarterOf(k).e);(byY[y]=byY[y]||{n:0,b1:0,b5:0,b6:0});const t=byY[y];t.n++;t.b1+=r.boxes[1]||0;t.b5+=r.boxes[5]||0;t.b6+=r.boxes[6]||0});
+  $('vatHist').innerHTML=E.map(([k,r])=>{const q=quarterOf(r.e||k);return `<tr><td><button type="button" class="link" data-vq="${k}" style="border:0;background:none;color:var(--gdark);font-weight:700;cursor:pointer;padding:0">${dPL(r.s||q.s)} – ${dPL(r.e||q.e)}</button><br><span class="src">${esc(r.scheme||'')}${r.prepared?' · '+dPL(r.prepared):''}</span></td><td class="r">${gbp(r.boxes[6]||0,2)}</td><td class="r">${gbp(r.boxes[1]||0,2)}</td><td class="r"><b>${gbp(r.boxes[5]||0,2)}</b></td><td><button type="button" class="x" data-dvq="${k}" aria-label="Usuń raport">✕</button></td></tr>`}).join('')
+    +Object.entries(byY).sort((a,b)=>b[0]-a[0]).map(([y,t])=>`<tr class="tot"><td>Razem ${tyLab(+y)} (${t.n} ${t.n===1?'kwartał':'kwartały'})</td><td class="r">${gbp(t.b6,2)}</td><td class="r">${gbp(t.b1,2)}</td><td class="r">${gbp(t.b5,2)}</td><td></td></tr>`).join('')}
+$('vatHist').addEventListener('click',e=>{const a=e.target.closest('[data-vq]');if(a){vatSel=a.dataset.vq;renderVat();$('vatBox').scrollIntoView({behavior:'smooth',block:'start'});return}
+  const b=e.target.closest('[data-dvq]');if(!b)return;const k=b.dataset.dvq;if(delArm!=='v'+k){delArm='v'+k;b.textContent='Usuń?';b.style.color='var(--bad)';setTimeout(()=>{if(delArm==='v'+k){delArm='';renderVatHist()}},3000);return}delArm='';delete Y.vatRep[k];saveY();renderVat()});
+function renderDocs(){const D=(Y.docs||[]).slice().sort((a,b)=>(b.y||0)-(a.y||0)||String(b.q||'').localeCompare(String(a.q||'')));
+  $('docL').innerHTML=D.length?D.map(d=>`<span class="pill">${d.type==='SA'?'Zeznanie '+tyLab(d.y):'VAT '+dPL(d.q)}: ${esc(d.file)}</span>`).join(' '):'<span class="hint">Nic jeszcze. Wczytaj zeznania z poprzednich lat (PDF od księgowej albo z HMRC).</span>'}
+
+/* ---------- checking the return before it goes to HMRC: what is covered, what is missing, what does not add up ---------- */
+function vatChecks(q,C){const K=[],add=(lvl,title,text)=>K.push({lvl,title,text}),day=864e5,me=Y.me,t=today();
+  const fin=t>q.e,qs=Date.parse(q.s),qe=Date.parse(q.e);
+  /* 1. bank statements cover the whole quarter */
+  const bankDates=Y.inc.filter(x=>x.bank&&x.who===me).map(x=>x.date).concat(Y.exp.filter(x=>x.who===me&&/^[bm]/.test(String(x.id))).map(x=>x.date)).sort();
+  const inQ=bankDates.filter(d=>d>=q.s&&d<=q.e),firstAfter=bankDates.find(d=>d>q.e),lastBefore=bankDates.filter(d=>d<q.s).pop();
+  const end=fin?q.e:t,gapStart=!inQ.length||(Date.parse(inQ[0])-qs>14*day&&!lastBefore),gapEnd=!inQ.length||(Date.parse(end)-Date.parse(inQ[inQ.length-1])>10*day&&!firstAfter);
+  if(!inQ.length)add('bad','Wyciągi z banku',`W tym kwartale nie ma ani jednej pozycji z wyciągu. Wczytaj wyciągi za ${dPL(q.s)} – ${dPL(fin?q.e:t)} w „Przychody i koszty”, inaczej deklaracja będzie pusta.`);
+  else if(gapStart||gapEnd)add('warn','Wyciągi z banku',`Pozycje z banku są od ${dPL(inQ[0])} do ${dPL(inQ[inQ.length-1])}. ${gapStart?`Brakuje chyba początku kwartału (od ${dPL(q.s)}). `:''}${gapEnd?`Brakuje chyba końca (do ${dPL(end)}). `:''}Wczytaj brakujący wyciąg: nowe pozycje się dodadzą, powtórki się nie zdublują.`);
+  else add('ok','Wyciągi z banku',`Pozycje z banku pokrywają kwartał (${dPL(inQ[0])} – ${dPL(inQ[inQ.length-1])}).`);
+  /* 2. invoices from the panel against money received */
+  const inv=(srv.invoices||[]).filter(v=>v.driver===me&&v.status!=='Void'&&v.total>0),rec=incAll().filter(x=>x.who===me&&!x.diary),gross=x=>x.bank&&x.gross?+x.gross:(+x.amount||0)*1.2;
+  if(mode==='server'){const used=new Set(),match=v=>rec.find(x=>!used.has(x)&&Math.abs(gross(x)-v.total)<=0.01&&x.date>=String(v.created).slice(0,10));
+    const res=inv.slice().sort((a,b)=>String(a.created).localeCompare(String(b.created))).map(v=>{const r=match(v);if(r)used.add(r);return {v,r}});
+    const paidHere=res.filter(o=>o.r&&o.r.date>=q.s&&o.r.date<=q.e),late=res.filter(o=>!o.r&&o.v.due&&toISO(o.v.due)&&toISO(o.v.due)<=(fin?q.e:t));
+    const net=res.filter(o=>!o.r&&rec.some(x=>x.date>=q.s&&x.date<=q.e&&x.date>=String(o.v.created).slice(0,10)&&Math.abs(gross(x)-o.v.total/1.2)<=0.01));
+    if(paidHere.length)add('ok','Faktury opłacone w tym kwartale',paidHere.map(o=>`${esc(o.v.number)} ${gbp(o.v.total,2)} → wpływ ${dPL(o.r.date)}`).join(' · '));
+    if(late.length)add('warn','Faktury bez wpływu po terminie',late.map(o=>`${esc(o.v.number)} ${gbp(o.v.total,2)} (termin ${esc(o.v.due)})`).join(' · ')+'. Na FRS Cash nie wchodzą do deklaracji, dopóki pieniądze nie wpłyną. Jeśli wpłynęły, wczytaj wyciąg; jeśli nie, przypomnij klientowi.');
+    if(net.length)add('bad','Klient zapłacił bez VAT?',net.map(o=>`${esc(o.v.number)}: faktura ${gbp(o.v.total,2)}, a na koncie jest wpływ ${gbp(o.v.total/1.2,2)}`).join(' · ')+'. Sprawdź, czy klient zapłacił kwotę netto: VAT od faktury i tak trzeba rozliczyć.');
+    const noInv=C.sales.filter(s=>!res.some(o=>o.r&&o.r.date===s.date&&Math.abs(gross(o.r)-s.gross)<=0.01));
+    if(noInv.length)add('info','Wpływy bez faktury z panelu',noInv.map(s=>`${dPL(s.date)} ${esc(s.name)} ${gbp(s.gross,2)}`).join(' · ')+'. To normalne dla klientów fakturowanych poza panelem (np. 1st Class, self-billing). Upewnij się, że to sprzedaż, a nie np. zwrot.')}
+  /* 3. runs in the Diary against receipts */
+  const runs=C.runs.reduce((s,x)=>s+(+x.amount||0),0),recNet=C.sales.reduce((s,x)=>s+x.net,0);
+  if(runs>0)add(Math.abs(runs-recNet)/runs>0.35?'info':'ok','Diary a wpływy',`Runy z Diary w tym kwartale: ${gbp(runs,2)} netto, wpływy: ${gbp(recNet,2)} netto. Na FRS Cash liczą się wpływy, więc różnica to faktury opłacone w innym kwartale${runs>recNet?' (część zapłaci klient w następnym)':''}.`);
+  /* 4. duplicates */
+  const seenS={},dup=C.sales.filter(s=>{const k=s.date+'|'+s.gross;if(seenS[k])return true;seenS[k]=1;return false});
+  if(dup.length)add('warn','Możliwe podwójne wpływy',dup.map(s=>`${dPL(s.date)} ${esc(s.name)} ${gbp(s.gross,2)}`).join(' · ')+' występuje dwa razy tego samego dnia. Jeśli to jedna wpłata, usuń duplikat w „Przychody i koszty”.');
+  /* 5. rate and scheme */
+  if(C.vm==='frs'){const reg=Y.vatReg?Date.parse(Y.vatReg):0,first=S.frsFirst;
+    if(first&&reg&&qe>reg+365*day)add('bad','Stawka flat rate',`Zniżka 1% jest włączona, a kwartał kończy się po pierwszej rocznicy rejestracji (${dPL(Y.vatReg)}). Wyłącz ją.`);
+    else add('ok','Stawka flat rate',`${frsPctNow()}%${first?' (z 1% zniżką za pierwszy rok)':''}. ${(Y.vatRep||{})[q.s]&&(Y.vatRep||{})[q.s].scheme?'Raport księgowej: '+esc(Y.vatRep[q.s].scheme)+'.':''}${reg?'':' Wpisz datę rejestracji VAT, żeby kalkulator pilnował zniżki.'}`);
+    /* 6. limited cost trader */
+    const goods=C.exp.filter(x=>['Fuel','Tyres','Repairs & service','Equipment'].includes(x.category)).reduce((s,x)=>s+(+x.amount||0),0),lim=Math.max(C.G*0.02,250);
+    if(C.G>0)add(goods>=lim?'ok':(fin?'bad':'warn'),'Test limited cost trader',`Towary w kwartale ${gbp(goods,2)}, próg ${gbp(lim,2)}. ${goods>=lim?`Zostajesz przy ${frsPctNow()}%.`:fin?`Za ten kwartał obowiązuje 16.5%: Box 1 = ${gbp(r2(C.G*0.165),2)}. Najpierw upewnij się, że wczytałeś wszystkie tankowania.`:'Kwartał jeszcze trwa: wczytuj tankowania na bieżąco.'}`)}
+  /* 7. box 4 */
+  const capAll=C.exp.filter(x=>x.category==='Capital purchase');
+  if(capAll.length)add('info','Box 4: zakupy sprzętu',capAll.map(x=>`${dPL(x.date)} ${gbp(x.amount,2)} ${(+x.amount)>=2000?'→ VAT '+gbp(x.amount/6,2)+' w Box 4':'→ poniżej £2,000, bez zwrotu VAT'}`).join(' · ')+'. Zachowaj faktury VAT.');
+  else add('ok','Box 4',`Brak zakupów sprzętu od £2,000, więc Box 4 = £0.00 (koszty na flat rate nie wchodzą do deklaracji).`);
+  /* 8. the arithmetic of the boxes */
+  const B=C.B,okM=Math.abs(B[3]-(B[1]+B[2]))<0.005&&Math.abs(B[5]-(B[3]-B[4]))<0.005&&(C.vm!=='frs'||Math.abs(B[1]-r2(B[6]*C.pct))<0.005);
+  add(okM?'ok':'bad','Rachunek pól',okM?`Box 3 = 1 + 2, Box 5 = 3 − 4${C.vm==='frs'?`, Box 1 = ${Math.round(C.pct*1000)/10}% × Box 6`:''}. Box 6–9 wysyłasz w pełnych funtach (Box 6: ${gbp(Math.floor(B[6]),0)}).`:'Pola się nie sumują. Daj znać Claude, to błąd kalkulatora.');
+  /* 9. the accountant's report */
+  const rep=(Y.vatRep||{})[q.s];if(rep){const bad=[1,3,4,5,6,7].filter(k=>rep.boxes[k]!=null&&Math.abs(rep.boxes[k]-B[k])>0.01);
+    add(bad.length?'bad':'ok','Raport księgowej',bad.length?`Różnice w Box ${bad.join(', ')}: ${bad.map(k=>`Box ${k} kalkulator ${gbp(B[k],2)}, księgowa ${gbp(rep.boxes[k],2)}`).join('; ')}.`:'Wszystkie pola zgadzają się z raportem księgowej.')}
+  /* 10. van sale, deadline and payment */
+  const sold=C.sales.filter(s=>/sprzedaż vana/i.test(s.name));if(sold.length)add('warn','Sprzedaż vana',`W tym kwartale: ${sold.map(s=>gbp(s.gross,0)).join(', ')}. Sprawdź z księgową, czy wchodzi do flat rate, czy liczy się 20% poza nim.`);
+  const left=Math.round((Date.parse(q.due)-Date.parse(t))/day),paid=C.pay.reduce((s,x)=>s+(+x.amount||0),0);
+  if(!fin)add('info','Kwartał jeszcze trwa',`Kończy się ${dPL(q.e)}. Deklarację wyślesz po tym dniu, do ${dPL(q.due)}.`);
+  else if(paid&&Math.abs(paid-B[5])<=1)add('ok','Płatność',`Zapłacone ${gbp(paid,2)}.`);
+  else if(left<0)add('bad','Termin minął',`Deklaracja i płatność były do ${dPL(q.due)}. Jeśli zapłaciłeś, dodaj wydatek „Opłata VAT do HMRC”.`);
+  else add('warn','Termin',`Wyślij deklarację i zapłać ${gbp(B[5],2)} do ${dPL(q.due)} (za ${left} dni).`);
+  return K}
+function renderVatCheck(q,C){const K=vatChecks(q,C),bad=K.filter(k=>k.lvl==='bad').length,warn=K.filter(k=>k.lvl==='warn').length,ico={ok:['✓','var(--gdark)'],warn:['!','#B54708'],bad:['✗','var(--bad)'],info:['i','var(--muted)']};
+  const head=bad?`<b style="color:var(--bad)">Nie wysyłaj jeszcze: ${bad} ${bad===1?'problem':'problemy'}${warn?` i ${warn} do sprawdzenia`:''}.</b>`:warn?`<b style="color:#B54708">Prawie gotowe: ${warn} ${warn===1?'rzecz':'rzeczy'} do sprawdzenia.</b>`:'<b style="color:var(--gdark)">Wszystko się zgadza. Deklaracja gotowa do wysłania.</b>';
+  return `<div class="vchk"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h3>Kontrola deklaracji</h3><span>${head}</span></div>${K.map(k=>`<div class="vck"><span class="vci" style="color:${ico[k.lvl][1]};border-color:${ico[k.lvl][1]}">${ico[k.lvl][0]}</span><div><b>${k.title}</b><div class="hint" style="margin:2px 0 0">${k.text}</div></div></div>`).join('')}</div>`}
+
+/* ---------- has VAT paid off since registration: what the flat rate left you, against the accountant's fee for doing it ---------- */
+function vatWorth(){const reg=Y.vatReg,fee=Y.vatFee==null?85:+Y.vatFee,t=today();if(!reg)return null;
+  const rows=[];let q=quarterOf(reg);const lastQ=quarterOf(iso(Date.parse(quarterOf(t).s)-864e5));
+  for(let i=0;i<60&&q.s<=lastQ.s;i++){const rep=(Y.vatRep||{})[q.s];let G=null,paid=null,src='';
+    if(rep&&rep.boxes){G=+rep.boxes[6]||0;paid=+rep.boxes[5]||0;src='raport księgowej'}else{const C=vatCalc(q);if(C.sales.length){G=C.G;paid=C.B[5];src='kalkulator (wyciągi)'}}
+    const from=q.s<reg?reg:q.s,months=Math.max(0,Math.round((Date.parse(q.e)-Date.parse(from))/864e5/30.44));
+    rows.push({q,G,paid,src,kept:G==null?null:r2(G/6-paid),fee:r2(fee*months)});q=quarterOf(iso(Date.parse(q.e)+864e5))}
+  const known=rows.filter(r=>r.G!=null),kept=known.reduce((s,r)=>s+r.kept,0),feeAll=rows.reduce((s,r)=>s+r.fee,0),feeKnown=known.reduce((s,r)=>s+r.fee,0);
+  const last=known.slice(-2),pace=last.length?last.reduce((s,r)=>s+r.kept,0)/last.length:0;
+  return {rows,known,kept,feeAll,feeKnown,net:kept-feeKnown,after:(kept-feeKnown)*0.74,pace,fee}}
+const MS=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'],qLab=q=>`${MS[+q.s.slice(5,7)-1]}–${MS[+q.e.slice(5,7)-1]} ${q.e.slice(0,4)}`;
+function renderVatWorth(){const W=vatWorth(),box=$('vatWorth');if(!box)return;
+  if(!W){box.innerHTML='<p class="hint">Wpisz wyżej datę rejestracji do VAT (jest na certyfikacie VAT albo w koncie HMRC), a policzę, ile VAT dał Ci od początku w porównaniu z opłatami dla księgowej.</p>';return}
+  const miss=W.rows.filter(r=>r.G==null),good=W.net>=0;
+  box.innerHTML=`<div class="kpi" style="margin-bottom:12px">${[[gbp(W.kept,0),'zostało Ci z VAT (flat rate)',''],[gbp(W.feeKnown,0),'księgowa za VAT w tych kwartałach',''],[(W.net<0?'−':'')+gbp(Math.abs(W.net),0),good?'na plus przed podatkiem':'na minus przed podatkiem',good?'dark':''],[(W.after<0?'−':'')+gbp(Math.abs(W.after),0),'po podatku i NI (26%)','']].map(([b,s,c])=>`<div class="tile ${c}"><b>${b}</b><span>${s}</span></div>`).join('')}</div>
+    <p class="note" style="margin:0 0 10px">${W.known.length?(good?`<b>VAT się opłacił:</b> od ${dPL(Y.vatReg)} zostało Ci z VAT ${gbp(W.kept,0)}, a za jego rozliczanie zapłaciłeś około ${gbp(W.feeKnown,0)}.`:`<b>VAT się na razie nie opłacił:</b> zostało Ci z niego ${gbp(W.kept,0)}, a rozliczanie kosztowało około ${gbp(W.feeKnown,0)}.`)+` Przy obecnym obrocie (ostatnie ${Math.min(2,W.known.length)} kwartały) VAT zostawia średnio ${gbp(W.pace,0)} na kwartał, a księgowa kosztuje ${gbp(W.fee*3,0)} na kwartał${W.pace>W.fee*3?`, więc na czysto zostaje ${gbp(W.pace-W.fee*3,0)} na kwartał.`:`. Składając VAT samemu, oszczędzasz te ${gbp(W.fee*3,0)}.`}`:'Brak danych z kwartałów. Wczytaj raporty VAT od księgowej albo wyciągi z banku.'}${miss.length?` <b>Brakuje ${miss.length} ${miss.length===1?'kwartału':'kwartałów'}</b> (zaznaczone niżej): wczytaj ich raporty VAT, żeby wynik był pełny. Opłaty za te kwartały (${gbp(W.feeAll-W.feeKnown,0)}) nie są wliczone.`:''}</p>
+    <div class="tbl"><table><thead><tr><th>Kwartał</th><th class="r">Sprzedaż z VAT</th><th class="r">VAT doliczony</th><th class="r">Oddane HMRC</th><th class="r">Zostało</th><th class="r">Księgowa</th><th class="r">Na czysto</th></tr></thead><tbody>
+    ${W.rows.slice().reverse().map(r=>r.G==null?`<tr><td style="white-space:nowrap">${qLab(r.q)}</td><td colspan="5" class="minus">brak danych: wczytaj raport VAT</td><td class="r minus">−${gbp(r.fee,0)}</td></tr>`:`<tr><td style="white-space:nowrap">${qLab(r.q)}<br><span class="src">${r.src}</span></td><td class="r">${gbp(r.G,2)}</td><td class="r">${gbp(r.G/6,2)}</td><td class="r minus">−${gbp(r.paid,2)}</td><td class="r">${gbp(r.kept,2)}</td><td class="r minus">−${gbp(r.fee,0)}</td><td class="r ${r.kept-r.fee>=0?'net':''}" style="${r.kept-r.fee<0?'color:var(--bad)':''}"><b>${r.kept-r.fee<0?'−':''}${gbp(Math.abs(r.kept-r.fee),0)}</b></td></tr>`).join('')}</tbody></table></div>
+    <p class="hint" style="margin-top:8px">„Zostało” to VAT doliczony na fakturach (1/6 kwoty z VAT) minus to, co oddałeś HMRC. Jest to Twój dochód, więc idzie od niego podatek, a opłata księgowej jest kosztem. Dlatego „po podatku” liczę jako 74% różnicy (20% podatku i 6% NI).</p>`}
+
+/* ---------- invoices waiting for money: shown, never counted (cash basis counts them on the day they are paid) ---------- */
+function invMatch(){const me=Y.me,inv=(srv.invoices||[]).filter(v=>v.driver===me&&v.status!=='Void'&&v.total>0),rec=incAll().filter(x=>x.who===me&&!x.diary),gross=x=>x.bank&&x.gross?+x.gross:(+x.amount||0)*1.2,used=new Set();
+  return inv.slice().sort((a,b)=>String(a.created).localeCompare(String(b.created))).map(v=>{const r=rec.find(x=>!used.has(x)&&Math.abs(gross(x)-v.total)<=0.01&&x.date>=String(v.created).slice(0,10));if(r)used.add(r);return {v,r}})}
+function renderUnpaid(){const box=$('unpBox');if(!box)return;
+  if(mode!=='server'){box.innerHTML='<p class="hint">Faktury pokazują się w wersji na stronie PRJ po zalogowaniu (pobieram je z panelu: Diary → Invoices).</p>';return}
+  const t=today(),day=864e5,M=invMatch(),open=M.filter(o=>o.v.status!=='Paid'&&!o.r),paidBank=M.filter(o=>o.v.status!=='Paid'&&o.r&&Date.parse(t)-Date.parse(o.r.date)<=60*day);
+  const runs=incAll().filter(x=>x.who===Y.me&&x.diary&&!x.inv),runsSum=runs.reduce((s,x)=>s+(+x.amount||0),0);
+  const sum=open.reduce((s,o)=>s+o.v.total,0),late=open.filter(o=>o.v.due&&toISO(o.v.due)&&toISO(o.v.due)<t),lateSum=late.reduce((s,o)=>s+o.v.total,0);
+  box.innerHTML=`<div class="kpi" style="margin-bottom:12px">${[[gbp(sum,0),`czeka na zapłatę (${open.length} ${open.length===1?'faktura':(open.length%10>=2&&open.length%10<=4&&(open.length%100<10||open.length%100>=20))?'faktury':'faktur'})`,'dark'],[gbp(lateSum,0),`po terminie (${late.length})`,''],[gbp(sum/1.2*(vatOn()?1:1.2),0),'z tego bez VAT',''],[gbp(runsSum,0),`runy jeszcze bez faktury (${runs.length})`,'']].map(([b,s,c],i)=>`<div class="tile ${c}" ${i===1&&late.length?'style="background:var(--badsoft)"':''}><b ${i===1&&late.length?'style="color:var(--bad)"':''}>${b}</b><span>${s}</span></div>`).join('')}</div>
+    <div class="tbl"><table><thead><tr><th>Faktura</th><th>Termin</th><th class="r">Kwota</th></tr></thead><tbody>
+    ${open.map(o=>{const d=o.v.due&&toISO(o.v.due),left=d?Math.round((Date.parse(d)-Date.parse(t))/day):null;return `<tr><td><b>${esc(o.v.number)}</b><br><span class="src">${esc(o.v.client)} · wystawiona ${dPL(String(o.v.created).slice(0,10))}</span></td><td>${d?dPL(d):'—'}<br>${left==null?'<span class="pill">czeka</span>':left<0?`<span class="pill" style="color:var(--bad);background:var(--badsoft)">${-left} dni po terminie</span>`:`<span class="pill">za ${left} dni</span>`}</td><td class="r"><b>${gbp(o.v.total,2)}</b><br><span class="src">bez VAT ${gbp(vatOn()?o.v.total/1.2:o.v.total,2)}</span></td></tr>`}).join('')||'<tr><td colspan="3" class="minus">Wszystkie faktury są zapłacone. 👍</td></tr>'}
+    ${open.length>1?`<tr class="tot"><td colspan="2">Razem</td><td class="r">${gbp(sum,2)}<br><span class="src">bez VAT ${gbp(vatOn()?sum/1.2:sum,2)}</span></td></tr>`:''}</tbody></table></div>
+    ${paidBank.length?`<p class="note" style="margin-top:10px">Wpłynęły, ale w panelu nie są oznaczone jako zapłacone: ${paidBank.map(o=>`<b>${esc(o.v.number)}</b> ${gbp(o.v.total,2)} (wpływ ${dPL(o.r.date)})`).join(', ')}. Kliknij przy nich „✔ Paid” w panelu (Diary → Invoices).</p>`:''}
+    <p class="hint" style="margin-top:8px">Tych kwot nie liczę do przychodu ani podatku: wejdą w dniu, w którym pieniądze wpłyną na konto (wtedy pojawią się w Przychodach po wczytaniu wyciągu). Faktura znika z tej listy, gdy znajdę wpływ o tej samej kwocie albo gdy oznaczysz ją jako zapłaconą w panelu.${runs.length?` Runy bez faktury (${gbp(runsSum,0)} bez VAT) zafakturujesz w panelu: Diary → 🧾 Make invoice.`:''}</p>`}
+
+
+/* ---------- day diary: one row per working day, read off the van's trip computer ---------- */
+const DPL=['nd','pn','wt','śr','cz','pt','sb'];
+const hm=m=>m==null||m===''?'':`${Math.floor(m/60)}:${String(Math.round(m%60)).padStart(2,'0')}`;
+const pHM=s=>{s=String(s||'').trim();if(!s)return null;let m=s.match(/^(\d{1,2})[:.,h ]\s*(\d{1,2})$/);if(m)return +m[1]*60+ +m[2];m=s.match(/^\d+(\.\d+)?$/);return m?Math.round(parseFloat(s)*60):null};
+const tMin=t=>t?(+t.slice(0,2))*60+ +t.slice(3,5):null;
+const vanMonth=()=>(+S.ins||0)+(+S.fin||0)+(+S.serv||0)+(+S.oth||0);
+const vanDay=()=>vanMonth()*12/Math.max(1,(+S.dpw||5)*(+S.wpy||47));
+const dTaxPct=()=>Y.dhlTax==null?26:+Y.dhlTax;
+function dCalc(d){const mi=+d.miles||0,mpg=+d.mpg||0,fuel=mpg>0?mi/mpg*4.54609*(+d.fuel||0):0,fixed=vanDay(),rate=+d.rate||0;
+  const vatGain=d.vat?rate*0.2-rate*1.2*frsPctNow()/100:0,profit=rate-fuel-fixed+vatGain,tax=Math.max(0,profit)*dTaxPct()/100,keep=profit-tax;
+  const s=tMin(d.start),e=tMin(d.end),work=s!=null&&e!=null&&e>s?e-s:null,hrs=(work||d.drive||0)/60;
+  return {fuel,fixed,vatGain,profit,tax,keep,work,perH:hrs>0?keep/hrs:null,perMi:mi>0?keep/mi:null,litres:mpg>0?mi/mpg*4.54609:0}}
+let dEdit=null;
+const dRows=()=>(Y.dhl||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id)));
+function dFromForm(){return {id:dEdit||('d'+Date.now().toString(36)),date:$('dDate').value,co:$('dCo').value.trim()||'DHL',rate:+$('dRate').value||0,vat:$('dVat').checked,
+  miles:+$('dMi').value||0,drive:pHM($('dDrv').value),mpg:+$('dMpg').value||0,fuel:+$('dFuel').value||0,start:$('dStart').value,end:$('dEnd').value,
+  stops:$('dStops').value===''?null:+$('dStops').value,parcels:$('dPar').value===''?null:+$('dPar').value,note:$('dNote').value.trim()}}
+function dFill(d){$('dDate').value=d.date||today();$('dCo').value=d.co||'DHL';$('dRate').value=d.rate??'';$('dVat').checked=d.vat!==false;$('dMi').value=d.miles||'';$('dDrv').value=hm(d.drive);
+  $('dMpg').value=d.mpg||'';$('dFuel').value=d.fuel||'';$('dStart').value=d.start||'';$('dEnd').value=d.end||'';$('dStops').value=d.stops??'';$('dPar').value=d.parcels??'';$('dNote').value=d.note||''}
+function dBlank(){const last=dRows()[0]||{},ph=(S.phases||[]).find(p=>p.van)||{};
+  const d={date:today(),co:last.co||S.company||'DHL',rate:last.rate??ph.rate??'',vat:last.vat??(S.vatMode==='frs'),fuel:last.fuel||S.fuel||1.45,mpg:'',miles:''};
+  /* first DHL day (16.11.2026), read off the trip computer photo */
+  if(d.date==='2026-11-16'&&!(Y.dhl||[]).some(x=>x.date==='2026-11-16'))Object.assign(d,{miles:63,drive:257,mpg:27.1,note:'Pierwszy dzień'});
+  dEdit=null;dFill(d);$('dBtn').textContent='Zapisz dzień';$('dCancel').hidden=true;dPrev()}
+function dPrev(){const d=dFromForm();if(!d.rate&&!d.miles){$('dPrev').innerHTML='Wpisz zarobek i mile, a pokażę, ile zostaje z tego dnia.';return}const c=dCalc(d);
+  $('dPrev').innerHTML=`Z tego dnia zostaje Ci <b>${gbp(c.keep,2)}</b> na rękę`+(c.perH!=null?` (<b>${gbp(c.perH,2)}</b> na godzinę ${c.work!=null?'pracy':'jazdy'})`:'')+`. Zarobek ${gbp(d.rate,2)}`
+   +(d.vat?` + VAT z flat rate ${c.vatGain>=0?'+':''}${gbp(c.vatGain,2)}`:'')+` − paliwo ${gbp(c.fuel,2)} (${c.litres.toFixed(1)} l) − van ${gbp(c.fixed,2)} − podatek i NI ${gbp(c.tax,2)}.`}
+function dSum(L){return L.reduce((a,d)=>{const c=dCalc(d);a.n++;a.mi+=+d.miles||0;a.fuel+=c.fuel;a.rate+=+d.rate||0;a.keep+=c.keep;a.tax+=c.tax;a.drive+=d.drive||0;return a},{n:0,mi:0,fuel:0,rate:0,keep:0,tax:0,drive:0})}
+const wkEnd=ds=>{const t=new Date(ds+'T12:00:00Z'),w=t.getUTCDay();return iso(t.getTime()+((7-w)%7)*864e5)};
+function renderDhl(){const L=dRows(),t=today(),we=wkEnd(t),wk=dSum(L.filter(d=>wkEnd(d.date)===we)),mo=dSum(L.filter(d=>d.date.slice(0,7)===t.slice(0,7))),all=dSum(L);
+  $('dKpi').innerHTML=[[gbp(wk.keep,0),`zostaje w tym tygodniu (${wk.n} ${wk.n===1?'dzień':'dni'})`,''],[gbp(mo.keep,0),`zostaje w tym miesiącu (${mo.n} ${mo.n===1?"dzień":"dni"})`,''],
+    [all.n?gbp(all.keep/all.n,0):'–','średnio na dzień, na rękę',''],[mo.n?`${Math.round(mo.mi)} mi`:'0 mi',`w tym miesiącu · paliwo ${gbp(mo.fuel,0)}`,'dark']]
+    .map(([b,s,c])=>`<div class="tile ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+  $('dTax').value=dTaxPct();
+  $('dFixHint').textContent=`Stałe koszty vana: ${gbp(vanMonth(),0)} mies. = ${gbp(vanDay(),2)} na dzień (zmienisz w „Kalkulator oferty”).`;
+  if(!L.length){$('dT').innerHTML='<tr><td colspan="9" class="hint">Brak dni. Wpisz pierwszy dzień powyżej.</td></tr>';}
+  else{let h='',cur=null,grp=[];const flush=()=>{if(!grp.length)return;const s=dSum(grp);h+=`<tr class="wk"><td colspan="4">Tydzień do ${dPL(cur)}: ${s.n} ${s.n===1?'dzień':'dni'}, ${Math.round(s.mi)} mi</td><td class="r">${gbp(s.fuel,0)}</td><td class="r">${gbp(s.rate,0)}</td><td class="r">${gbp(s.keep,0)}</td><td colspan="2"></td></tr>`+grp.h;grp=[]};
+    L.forEach(d=>{const w=wkEnd(d.date);if(w!==cur){flush();cur=w;grp.h=''}grp.push(d);const c=dCalc(d),wd=DPL[new Date(d.date+'T12:00:00Z').getUTCDay()];
+      grp.h+=`<tr><td>${wd} ${dPL(d.date)}${d.co&&d.co!=='DHL'?` · ${esc(d.co)}`:''}${d.note?`<br><span class="hint">${esc(d.note)}</span>`:''}</td><td class="r">${d.miles||''}</td><td class="r">${hm(d.drive)}</td><td class="r">${d.mpg||''}</td><td class="r">${gbp(c.fuel,2)}</td><td class="r">${gbp(d.rate,0)}${d.vat?'<span class="hint"> +VAT</span>':''}</td><td class="r"><b>${gbp(c.keep,2)}</b></td><td class="r">${c.perH!=null?gbp(c.perH,2):''}</td><td style="white-space:nowrap"><button type="button" class="x" data-dedit="${esc(d.id)}" aria-label="Edytuj">✎</button><button type="button" class="x" data-ddel="${esc(d.id)}" aria-label="Usuń">✕</button></td></tr>`});
+    flush();$('dT').innerHTML=h}
+  if(!dEdit&&!$('dDate').value)dBlank();else dPrev()}
+['dDate','dCo','dRate','dVat','dMi','dDrv','dMpg','dFuel','dStart','dEnd','dStops','dPar','dNote'].forEach(k=>$(k).addEventListener('input',dPrev));
+$('dVat').addEventListener('change',dPrev);
+$('dForm').addEventListener('submit',e=>{e.preventDefault();const d=dFromForm();
+  if(!d.date){toast('Wybierz datę.');return}if(!d.rate&&!d.miles){toast('Wpisz zarobek albo mile.');return}if($('dDrv').value.trim()&&d.drive==null){toast('Czas jazdy wpisz jako g:mm, np. 4:17.');return}
+  Y.dhl=(Y.dhl||[]).filter(x=>x.id!==d.id);Y.dhl.push(d);saveY();toast(dEdit?'Zmieniono dzień.':`Zapisano ${dPL(d.date)}: zostaje ${gbp(dCalc(d).keep,2)}.`);dEdit=null;$('dDate').value='';renderDhl()});
+$('dCancel').onclick=()=>{dBlank()};
+$('dTax').addEventListener('change',()=>{const v=+$('dTax').value;if(v>=0&&v<=60){Y.dhlTax=v;saveY();renderDhl()}});
+$('dT').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.dedit){const d=(Y.dhl||[]).find(x=>x.id===b.dataset.dedit);if(!d)return;dEdit=d.id;dFill(d);$('dBtn').textContent='Zapisz zmiany';$('dCancel').hidden=false;dPrev();$('dForm').scrollIntoView({behavior:'smooth',block:'start'})}
+  if(b.dataset.ddel){const d=(Y.dhl||[]).find(x=>x.id===b.dataset.ddel);if(!d)return;Y.dhl=Y.dhl.filter(x=>x!==d);saveY();renderDhl();toast(`Usunięto dzień ${dPL(d.date)}.`)}});
+
+/* ---------- tabs ---------- */
+const TABS=['sum','dhl','money','paye','vat','calc','set'];
+function go(v){if(v==='year'||v==='rok')v='sum';if(!TABS.includes(v))v='sum';const y=v!=='calc';
+  $('vCalc').hidden=y;$('vYear').hidden=!y;document.querySelectorAll('.tabs [data-go]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.go===v)));
+  document.querySelectorAll('#vYear > section[data-tab]').forEach(sc=>sc.hidden=sc.dataset.tab!==v);
+  const ab=document.querySelector(`.tabs [data-go="${v}"]`),nav=document.querySelector('.tabs');if(ab&&nav)nav.scrollLeft=ab.offsetLeft-nav.offsetLeft-(nav.clientWidth-ab.offsetWidth)/2;
+  try{history.replaceState(null,'','#'+v)}catch(e){}if(y)render2();window.scrollTo(0,0)}
+const goHash=()=>go((location.hash||'').slice(1));
+document.querySelectorAll('.tabs [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+if(SERVER){try{token=localStorage.getItem(TKEY)||''}catch(e){}if(!token)showLogin('');else{showLogin('Łączę z serwerem…');loadSrv(true)}}
+else goHash();
+$('tOut').onclick=()=>logout('Wylogowano.');
+</script>
+
+
+</body></html>

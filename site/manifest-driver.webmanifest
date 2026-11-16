@@ -1,0 +1,17 @@
+{
+  "id": "./driver.html",
+  "name": "PRJ Driver",
+  "short_name": "PRJ Driver",
+  "description": "Photo proof of collection and delivery for PRJ Logistics drivers.",
+  "start_url": "driver.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#040C18",
+  "theme_color": "#040C18",
+  "lang": "en-GB",
+  "icons": [
+    { "src": "driver-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "driver-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "driver-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

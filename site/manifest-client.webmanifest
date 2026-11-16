@@ -1,0 +1,17 @@
+{
+  "id": "./client.html",
+  "name": "PRJ Logistics Client",
+  "short_name": "PRJ Client",
+  "description": "Book a collection with PRJ Logistics using your saved addresses.",
+  "start_url": "./client.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#040C18",
+  "theme_color": "#040C18",
+  "lang": "en-GB",
+  "icons": [
+    { "src": "icon-192-v2.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-v2.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

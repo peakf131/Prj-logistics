@@ -1,0 +1,7 @@
+# PRJ Logistics - what search engines may show
+User-agent: *
+Disallow: /admin.html
+Disallow: /driver.html
+Disallow: /client.html
+Disallow: /quote.html
+Disallow: /migrate.html
