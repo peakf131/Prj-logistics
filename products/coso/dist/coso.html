@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en-GB" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FFC20E"><link rel="icon" type="image/png" sizes="32x32" href="coso-icon-32.png"><link rel="apple-touch-icon" href="coso-icon-180.png">
+<meta name="theme-color" content="#FFFFFF"><link rel="icon" type="image/png" sizes="32x32" href="coso-icon-32.png"><link rel="apple-touch-icon" href="coso-icon-180.png">
 <meta property="og:title" content="COSO Courier Solutions"><meta property="og:description" content="Software for UK courier companies, built by couriers."><meta property="og:image" content="https://www.prjlogistics.co.uk/coso-og.png">
 <title>COSO Courier Solutions</title>
 <meta name="description" content="Instant quotes and online booking for UK courier websites. Built and tested by a working same-day courier. From £19 a month.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
 <style>
-/* COSO, bold edition: the page is yellow, the type is huge and black, black panels carry the product.
+/* COSO, bold edition on white: yellow is the accent, the type is huge and black, black panels carry the product.
    Motion: words rise in, two tickers run, a statement fills in as you scroll. All motion stops for reduced-motion users. */
 :root{--y:#FFC20E;--y2:#FFD34D;--ink:#0B0B0B;--ink2:#1C1C1C;--muted:#4A3F12;--cream:#FFF4CC;--line:rgba(11,11,11,.18);
   --f:"Archivo",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--ease:cubic-bezier(.2,.7,.1,1)}
@@ -16,7 +16,7 @@
 :root[data-theme="dark"]{--ink2:#151515}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--y);color:var(--ink);font:500 17px/1.55 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:#fff;color:var(--ink);font:500 17px/1.55 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit}
 .in{max-width:1240px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
 .wide{font-stretch:125%}
@@ -29,10 +29,10 @@ a{color:inherit}
 .btn:focus-visible,summary:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
 .dark .btn:focus-visible{outline-color:var(--y)}
 .lab{display:inline-flex;align-items:center;gap:10px;font:800 .78rem/1 var(--f);font-stretch:115%;letter-spacing:.16em;text-transform:uppercase}
-.lab:before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.lab:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--y);box-shadow:0 0 0 2px var(--ink)}
 
 /* header */
-header{position:sticky;top:0;z-index:20;background:rgba(255,194,14,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:2px solid var(--ink)}
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #E6E6E6}
 header .in{display:flex;align-items:center;gap:20px;height:72px}
 header .logo svg{height:40px;width:auto;display:block}
 header nav{margin-left:auto;display:flex;align-items:center;gap:6px}
@@ -42,7 +42,7 @@ header nav .btn{padding:12px 18px;font-size:.85rem;margin-left:8px}
 @media(max-width:860px){header nav a:not(.btn){display:none}}
 
 /* hero */
-.hero{padding:40px 0 70px;border-bottom:2px solid var(--ink)}
+.hero{padding:40px 0 70px;border-bottom:0}
 .hero .in>div:first-child{container-type:inline-size;min-width:0}
 .hero .in{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:40px;align-items:end}
 @media(max-width:980px){.hero .in{grid-template-columns:minmax(0,1fr);gap:34px}}
@@ -50,10 +50,10 @@ h1{margin:22px 0 26px;font:900 clamp(2.8rem,8vw,7rem)/.86 var(--f);letter-spacin
 @supports (font-size:1cqi){h1{font-size:15.5cqi}}
 h1 span{display:block;overflow:hidden;padding-bottom:.04em;white-space:nowrap}
 h1 span i{display:block;font-style:normal}
-h1 span:last-child i{-webkit-text-stroke:3px var(--ink);color:transparent}
+h1 span:last-child i{-webkit-text-stroke:3px var(--ink);color:var(--y)}
 .hero p.lead{font:600 clamp(1.1rem,1.6vw,1.3rem)/1.45 var(--f);max-width:34ch;margin:0 0 28px}
 .ctas{display:flex;gap:12px;flex-wrap:wrap}
-.panel{background:var(--ink);color:#fff;border-radius:28px;padding:18px;box-shadow:14px 14px 0 rgba(11,11,11,.22);position:relative}
+.panel{background:var(--ink);color:#fff;border-radius:28px;padding:18px;box-shadow:14px 14px 0 var(--y);position:relative}
 .panel .top{display:flex;justify-content:space-between;align-items:center;padding:4px 8px 14px;font:800 .78rem var(--f);font-stretch:115%;letter-spacing:.14em;text-transform:uppercase;color:var(--y)}
 .panel .top span:first-child:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:#3DDC84;margin-right:9px;box-shadow:0 0 0 0 rgba(61,220,132,.6);animation:ping 1.8s infinite}
 .panel .top span:last-child{color:#9A9A9A}
@@ -62,7 +62,7 @@ h1 span:last-child i{-webkit-text-stroke:3px var(--ink);color:transparent}
 .panel .try{margin:12px 8px 2px;font-size:.85rem;color:#A8A8A8}
 
 /* tickers */
-.ticker{background:var(--ink);color:var(--y);overflow:hidden;border-bottom:2px solid var(--ink);white-space:nowrap}
+.ticker{background:var(--ink);color:var(--y);overflow:hidden;white-space:nowrap}
 .ticker.alt{background:var(--y);color:var(--ink)}
 .ticker .track{display:inline-flex;gap:0;animation:run 32s linear infinite;padding:18px 0}
 .ticker.alt .track{animation-direction:reverse;animation-duration:40s}
@@ -71,7 +71,7 @@ h1 span:last-child i{-webkit-text-stroke:3px var(--ink);color:transparent}
 @keyframes run{to{transform:translateX(-50%)}}
 
 /* sections */
-section{padding:110px 0;border-bottom:2px solid var(--ink)}
+section{padding:110px 0;border-bottom:1px solid #E6E6E6}
 .dark{background:var(--ink);color:#fff}
 .dark .lab{color:var(--y)}
 h2{margin:18px 0 22px;font:900 clamp(2.2rem,7vw,5.6rem)/.9 var(--f);font-stretch:125%;letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance}
@@ -110,8 +110,9 @@ h2{margin:18px 0 22px;font:900 clamp(2.2rem,7vw,5.6rem)/.9 var(--f);font-stretch
 
 /* features */
 .bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
-.tile{border:2px solid var(--ink);border-radius:24px;padding:26px;grid-column:span 2;min-height:190px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+.tile{border:2px solid var(--ink);background:#fff;border-radius:24px;padding:26px;grid-column:span 2;min-height:190px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
 .tile.big{grid-column:span 3;background:var(--ink);color:#fff}
+.tile:not(.big):hover{background:var(--y)}
 .tile b{font:900 1.45rem/1.1 var(--f);font-stretch:112%;letter-spacing:-.02em}
 .tile span{font-weight:600}
 .tile.big span{color:#BDBDBD}
@@ -149,7 +150,7 @@ details p{margin:0 0 26px;max-width:62ch;font-weight:600}
 .final{padding:130px 0 120px}
 .final h2{font-size:clamp(3rem,10vw,8.5rem);margin:0 0 34px}
 .final h2 span{display:block}
-.final h2 span:nth-child(2){-webkit-text-stroke:3px var(--ink);color:transparent}
+.final h2 span:nth-child(2){-webkit-text-stroke:3px var(--ink);color:var(--y)}
 footer{background:var(--ink);color:#A9A9A9;font-size:.92rem}
 footer .in{padding-block:34px;display:flex;flex-wrap:wrap;gap:16px 30px;justify-content:space-between;align-items:center}
 footer svg{height:34px;width:auto;display:block}
@@ -170,9 +171,9 @@ footer a{color:#E8E8E8}
 
 <header><div class="in">
   <a class="logo" href="#top" aria-label="COSO Courier Solutions"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" focusable="false" aria-label="COSO Courier Solutions">
-  <rect x="0" y="10" width="120" height="120" rx="26" fill="#111111"/>
-  <path d="M84 46 A34 34 0 1 0 84 94" fill="none" stroke="#FFC20E" stroke-width="16" stroke-linecap="round"/>
-  <circle cx="86" cy="70" r="9" fill="#FFC20E"/>
+  <rect x="0" y="10" width="120" height="120" rx="26" fill="#FFC20E"/>
+  <path d="M84 46 A34 34 0 1 0 84 94" fill="none" stroke="#111111" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="86" cy="70" r="9" fill="#111111"/>
   <g fill="none" stroke="#111111" stroke-width="17">
     <path d="M206 47 A27 27 0 1 0 206 87" stroke-linecap="round"/>
     <circle cx="258" cy="67" r="27"/>
