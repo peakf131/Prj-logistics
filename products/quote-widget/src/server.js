@@ -1,4 +1,4 @@
-/* ---- PRJ Instant Quote: the server (one Cloudflare worker for every courier company) ----
+/* ---- COSO Instant Quote: the server (one Cloudflare worker for every courier company) ----
    Bindings:  QUOTE      KV namespace (companies, bookings, rate limits)
    Secrets:   ADMIN_KEY  password for /admin (you choose it)
               RESEND_API_KEY, MAIL_FROM   to send booking emails (optional)
@@ -25,7 +25,7 @@ async function handle(req, env, ctx) {
 
   if (path === '/widget.js') return new Response(WIDGET_JS, { headers: Object.assign({ 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=300' }, CORS) });
   if (path === '/admin') return new Response(ADMIN_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'no-referrer' } });
-  if (path === '/') return new Response('PRJ Instant Quote ' + VERSION, { headers: { 'Content-Type': 'text/plain' } });
+  if (path === '/') return new Response('COSO Instant Quote ' + VERSION, { headers: { 'Content-Type': 'text/plain' } });
 
   if (path === '/v1/config' && req.method === 'GET') {
     const t = await tenant(env, url.searchParams.get('t'));
@@ -109,7 +109,7 @@ async function places(q) {
     if (r.ok) { const j = await r.json(), x = j.result; if (x) return [{ label: x.postcode + ', ' + (x.admin_ward ? x.admin_ward + ', ' : '') + (x.admin_district || ''), lat: x.latitude, lon: x.longitude, postcode: x.postcode }]; }
     return [];
   }
-  const r = await fetch('https://photon.komoot.io/api/?limit=8&lang=en&lat=51.5&lon=-0.6&q=' + encodeURIComponent(q), { headers: { 'User-Agent': 'PRJ-Instant-Quote/1.0' } });
+  const r = await fetch('https://photon.komoot.io/api/?limit=8&lang=en&lat=51.5&lon=-0.6&q=' + encodeURIComponent(q), { headers: { 'User-Agent': 'COSO-Instant-Quote/1.0' } });
   if (!r.ok) return [];
   const j = await r.json(), seen = {};
   return (j.features || []).filter(f => f.properties && f.properties.countrycode === 'GB').map(f => {
@@ -127,7 +127,7 @@ async function route(env, a, b) {
       const r = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', { method: 'POST', headers: { Authorization: env.ORS_API_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ coordinates: [[+a.lon, +a.lat], [+b.lon, +b.lat]] }) });
       if (r.ok) { const j = await r.json(), f = j.features && j.features[0]; if (f) return { miles: f.properties.summary.distance / 1609.344, mins: f.properties.summary.duration / 60, line: thin(f.geometry.coordinates), exact: true }; }
     }
-    const r = await fetch('https://router.project-osrm.org/route/v1/driving/' + (+a.lon) + ',' + (+a.lat) + ';' + (+b.lon) + ',' + (+b.lat) + '?overview=simplified&geometries=geojson', { headers: { 'User-Agent': 'PRJ-Instant-Quote/1.0' } });
+    const r = await fetch('https://router.project-osrm.org/route/v1/driving/' + (+a.lon) + ',' + (+a.lat) + ';' + (+b.lon) + ',' + (+b.lat) + '?overview=simplified&geometries=geojson', { headers: { 'User-Agent': 'COSO-Instant-Quote/1.0' } });
     if (r.ok) { const j = await r.json(), x = j.routes && j.routes[0]; if (x) return { miles: x.distance / 1609.344, mins: x.duration / 60, line: thin(x.geometry.coordinates), exact: true }; }
   } catch (e) { console.log('route', e); }
   const miles = crowMiles([+a.lat, +a.lon], [+b.lat, +b.lon]) * 1.25;
@@ -176,7 +176,7 @@ async function book(env, ctx, t, b, req) {
   };
   if (env.QUOTE) await env.QUOTE.put('lead:' + t.id + ':' + now + ':' + ref, JSON.stringify(lead), { metadata: { ref, name, total: q.total, created: now, from: lead.from.label.slice(0, 60), to: lead.to.label.slice(0, 60) } });
   const mails = [];
-  if (t.email) mails.push(mail(env, { to: t.email, replyTo: email, fromName: 'Instant Quote', subject: 'New booking request ' + ref + ': ' + money(q.total) + ', ' + short(lead.from.label) + ' to ' + short(lead.to.label), text: ownerText(t, lead) }));
+  if (t.email) mails.push(mail(env, { to: t.email, replyTo: email, fromName: 'COSO Instant Quote', subject: 'New booking request ' + ref + ': ' + money(q.total) + ', ' + short(lead.from.label) + ' to ' + short(lead.to.label), text: ownerText(t, lead) }));
   mails.push(mail(env, { to: email, replyTo: t.email || undefined, fromName: t.name, subject: t.name + ': we have your booking request ' + ref, text: customerText(t, lead) }));
   const all = Promise.all(mails);
   if (ctx && ctx.waitUntil) ctx.waitUntil(all); else await all;

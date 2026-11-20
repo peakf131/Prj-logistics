@@ -37,7 +37,7 @@ const post = (p, b, h) => req(p, { method: 'POST', body: JSON.stringify(b), head
 const js = async r => ({ s: r.status, j: await r.json() });
 
 // static files
-let r = await req('/widget.js'); t('widget served', r.status === 200 && (await r.text()).includes('PRJ Instant Quote'));
+let r = await req('/widget.js'); t('widget served', r.status === 200 && (await r.text()).includes('COSO'));
 r = await req('/admin'); t('admin page served', r.status === 200 && (await r.text()).includes('Admin key'));
 r = await req('/v1/config', { method: 'OPTIONS' }); t('CORS preflight', r.status === 204 && r.headers.get('Access-Control-Allow-Origin') === '*');
 

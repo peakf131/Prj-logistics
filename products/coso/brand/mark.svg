@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="COSO">
+  <rect width="120" height="120" rx="26" fill="#FFC20E"/>
+  <path d="M84 36 A34 34 0 1 0 84 84" fill="none" stroke="#111111" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="84" cy="84" r="0" fill="#111"/>
+  <circle cx="86" cy="60" r="9" fill="#111111"/>
+</svg>

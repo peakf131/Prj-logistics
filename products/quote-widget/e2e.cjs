@@ -1,11 +1,11 @@
-/* node e2e.cjs: browser test of the sales page demo, the widget against the real worker code, and the admin page */
+/* node e2e.cjs: browser test of the COSO site demo, the widget against the real worker code, and the admin page */
 const {chromium}=require('playwright');const http=require('http');const fs=require('fs');const path=require('path');
 fs.copyFileSync(path.resolve('dist/worker.js'),path.resolve('dist/worker.mjs'));
 (async()=>{
  // 1) offline preview (sales page)
  const b=await chromium.launch();const errs=[];
  let p=await b.newPage({viewport:{width:1280,height:860}});p.on('pageerror',e=>errs.push('preview: '+e.message));
- await p.goto('file://'+path.resolve('dist/preview.html'));await p.waitForTimeout(500);
+ await p.goto('file://'+path.resolve('../coso/dist/preview.html'));await p.waitForTimeout(500);
  const sh=p.locator('#iq-demo');
  await sh.locator('#qf').fill('reading');await p.waitForTimeout(400);await sh.locator('#lf li').first().click();
  await sh.locator('#qt').fill('heathrow');await p.waitForTimeout(400);await p.keyboard.press('Enter');
@@ -16,7 +16,7 @@ fs.copyFileSync(path.resolve('dist/worker.js'),path.resolve('dist/worker.mjs'));
  await sh.locator('#bk').click();await sh.locator('#cn').fill('Anna Smith');await sh.locator('#cp').fill('07123 456789');await sh.locator('#ce').fill('anna@example.com');await sh.locator('#ck').check();
  await sh.locator('#sb').click();await p.waitForTimeout(800);console.log('offline done:',await sh.locator('.ref').textContent());
  await p.close();
- for(const [w,f] of [[390,'shot-mobile.png']]){const m=await b.newPage({viewport:{width:w,height:844}});await m.goto('file://'+path.resolve('dist/preview.html'));await m.waitForTimeout(500);console.log('mobile scrollWidth',await m.evaluate(()=>document.documentElement.scrollWidth));await m.screenshot({path:f,fullPage:true});await m.close()}
+ for(const [w,f] of [[390,'shot-mobile.png']]){const m=await b.newPage({viewport:{width:w,height:844}});await m.goto('file://'+path.resolve('../coso/dist/preview.html'));await m.waitForTimeout(500);console.log('mobile scrollWidth',await m.evaluate(()=>document.documentElement.scrollWidth));await m.screenshot({path:f,fullPage:true});await m.close()}
  // 2) online: real worker code behind a local server, outside services faked
  const W=(await import(path.resolve('dist/worker.mjs'))).default;
  const realFetch=globalThis.fetch;

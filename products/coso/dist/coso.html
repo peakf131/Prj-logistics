@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111"><link rel="icon" type="image/png" sizes="32x32" href="coso-icon-32.png"><link rel="apple-touch-icon" href="coso-icon-180.png">
+<meta property="og:title" content="COSO Courier Solutions"><meta property="og:description" content="Software for UK courier companies, built by couriers."><meta property="og:image" content="https://www.prjlogistics.co.uk/coso-og.png">
+<title>COSO Courier Solutions</title>
+<meta name="description" content="Software for UK courier companies, built by couriers. Instant quotes and online booking for your website from £19 a month.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* COSO: black and yellow, heavy type, one strong accent. The live Instant Quote demo sits in a mock courier website. */
+:root{--y:#FFC20E;--y2:#FFD54A;--ysoft:#FFF6D6;--ink:#111111;--ink2:#2B2B2B;--mut:#5E6168;--line:#E6E3DA;--paper:#FAF9F5;--card:#FFFFFF;
+  --f:"Archivo",-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#F3F2EE;--ink2:#D9D7D0;--mut:#A3A6AD;--line:#2C2D30;--paper:#161718;--card:#1E1F21;--ysoft:#2E2814;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#F3F2EE;--ink2:#D9D7D0;--mut:#A3A6AD;--line:#2C2D30;--paper:#161718;--card:#1E1F21;--ysoft:#2E2814;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 var(--f)}
+a{color:inherit}
+.in{max-width:1160px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:800 1rem var(--f);border-radius:12px;padding:14px 22px;border:2px solid var(--y);background:var(--y);color:#111;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--y2)}
+.btn.line{background:transparent;color:inherit;border-color:currentColor}
+.btn:focus-visible{outline:3px solid var(--y);outline-offset:3px}
+.tag{display:inline-flex;align-items:center;gap:8px;font:800 .74rem var(--f);letter-spacing:.14em;text-transform:uppercase}
+.tag:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--y)}
+/* header + hero on black */
+.dark{background:#111;color:#fff}
+header .in{display:flex;align-items:center;gap:18px;padding-block:14px}
+header .logo svg{height:44px;width:auto;display:block}
+header nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+header nav a{text-decoration:none;font-weight:700;font-size:.95rem;color:#D8D8D8}
+header nav a:hover{color:#fff}
+header nav .btn{padding:10px 16px;font-size:.92rem;color:#111}
+@media(max-width:820px){header nav a:not(.btn){display:none}}
+.hero .in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);gap:48px;align-items:center;padding-block:52px 72px}
+@media(max-width:920px){.hero .in{grid-template-columns:minmax(0,1fr);padding-block:30px 48px;gap:34px}}
+h1{font:900 clamp(2.6rem,6.4vw,4.6rem)/.95 var(--f);letter-spacing:-.03em;margin:16px 0 18px;text-wrap:balance}
+h1 mark{background:none;color:var(--y)}
+.hero .lead{font-size:1.18rem;color:#C9C9C9;max-width:40ch;margin:0 0 28px}
+.ctas{display:flex;gap:12px;flex-wrap:wrap}
+.proof{display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:30px;color:#BDBDBD;font-size:.95rem}
+.proof b{color:#fff}
+.browser{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 0 0 8px rgba(255,194,14,.14),0 30px 70px rgba(0,0,0,.55);color:#111827}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F0EFEA;border-bottom:1px solid #E2E0D8}
+.bar i{width:11px;height:11px;border-radius:50%;background:#D6D3CA;display:block}
+.bar span{flex:1;margin-left:8px;background:#fff;border-radius:7px;padding:4px 10px;font:600 .8rem var(--f);color:#6B6B6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.site{padding:18px;background:#FAFAF8}
+.site .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font:800 1rem var(--f)}
+.site .nav small{font-weight:600;color:#6B6B6B;font-size:.8rem}
+.try{margin:10px 2px 0;font-size:.85rem;color:#6B6B6B}
+/* yellow stripe */
+.stripe{background:var(--y);color:#111}
+.stripe .in{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding-block:22px}
+.stripe div{font:700 .98rem/1.35 var(--f)}.stripe b{display:block;font:900 1.6rem/1 var(--f);letter-spacing:-.02em;margin-bottom:4px}
+@media(max-width:760px){.stripe .in{grid-template-columns:repeat(2,minmax(0,1fr))}}
+section.block{padding-block:76px}
+section.white{background:var(--card);border-block:1px solid var(--line)}
+h2{font:900 clamp(2rem,4.6vw,3rem)/1 var(--f);letter-spacing:-.025em;margin:12px 0 14px;text-wrap:balance}
+.sub{color:var(--mut);max-width:60ch;margin:0 0 36px;font-size:1.06rem}
+/* products */
+.prods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media(max-width:900px){.prods{grid-template-columns:minmax(0,1fr)}}
+.prod{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:12px;position:relative}
+section.white .prod{background:var(--paper)}
+.prod .ic{width:52px;height:52px;border-radius:14px;background:var(--y);display:grid;place-items:center;color:#111}
+.prod h3{font:900 1.45rem/1.1 var(--f);margin:4px 0 0;letter-spacing:-.01em}
+.prod p{margin:0;color:var(--mut)}
+.prod ul{margin:0;padding-left:18px;color:var(--mut);font-size:.95rem}
+.prod .st{position:absolute;top:22px;right:22px;font:800 .7rem var(--f);letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:var(--ysoft);color:var(--ink)}
+.prod .st.live{background:#111;color:var(--y)}
+.prod .more{margin-top:auto;font-weight:800;text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+.prod .more:after{content:"→"}
+/* steps & features */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;counter-reset:s}
+@media(max-width:820px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step{border-top:4px solid #111;padding-top:18px}
+:root[data-theme="dark"] .step{border-top-color:var(--y)}
+.step:before{counter-increment:s;content:"0" counter(s);display:block;font:900 2.4rem/1 var(--f);color:var(--y);-webkit-text-stroke:1.5px #111;margin-bottom:10px}
+.step b{display:block;font-size:1.15rem;margin-bottom:4px}.step p{margin:0;color:var(--mut)}
+.feat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 34px;margin-top:44px}
+@media(max-width:760px){.feat{grid-template-columns:minmax(0,1fr)}}
+.feat div{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}
+.feat div:before{content:"✓";display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--y);color:#111;font-weight:900;font-size:.85rem}
+.feat b{display:block}.feat span{color:var(--mut);font-size:.96rem}
+/* pricing */
+.prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:880px}
+@media(max-width:700px){.prices{grid-template-columns:minmax(0,1fr)}}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.plan.best{background:#111;color:#fff;border-color:#111}
+.plan h3{font:900 1.3rem var(--f);margin:0;text-transform:uppercase;letter-spacing:.04em}
+.plan .p{font:900 3.4rem/1 var(--f);letter-spacing:-.03em}.plan .p small{font:700 1rem var(--f);color:var(--mut);margin-left:6px;letter-spacing:0}
+.plan.best .p small,.plan.best li{color:#C9C9C9}
+.plan ul{margin:0;padding-left:18px;color:var(--mut)}
+.plan .btn{margin-top:auto}
+.soon{font-size:.92rem;color:var(--mut);margin-top:18px}
+pre.code{background:#111;color:#FFE08A;border-radius:16px;padding:20px 22px;overflow-x:auto;font:500 .92rem/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0;border-left:6px solid var(--y)}
+/* about */
+.about{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:40px;align-items:center}
+@media(max-width:860px){.about{grid-template-columns:minmax(0,1fr)}}
+.quote{background:#111;color:#fff;border-radius:20px;padding:30px;position:relative}
+.quote p{font:700 1.2rem/1.5 var(--f);margin:0}
+.quote footer{margin-top:16px;color:var(--y);font-weight:800;font-size:.95rem}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:10px;max-width:840px}
+summary{font-weight:800;cursor:pointer}details p{color:var(--mut);margin:10px 0 0}
+.final{background:var(--y);color:#111;border-radius:24px;padding:40px;display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:space-between}
+.final h2{margin:0}.final p{margin:8px 0 0;max-width:52ch;font-weight:600}
+.final .btn{background:#111;border-color:#111;color:var(--y)}
+.foot{background:#111;color:#A9A9A9;font-size:.9rem;margin-top:76px}
+.foot .in{padding-block:30px;display:flex;flex-wrap:wrap;gap:14px 30px;justify-content:space-between;align-items:center}
+.foot svg{height:34px;width:auto;display:block}
+.foot a{color:#E6E6E6}
+</style>
+</head><body>
+
+
+<div class="dark">
+<header><div class="in">
+  <a class="logo" href="#top" aria-label="COSO Courier Solutions"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" focusable="false" aria-label="COSO Courier Solutions">
+  <rect x="0" y="10" width="120" height="120" rx="26" fill="#FFC20E"/>
+  <path d="M84 46 A34 34 0 1 0 84 94" fill="none" stroke="#111111" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="86" cy="70" r="9" fill="#111111"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="17">
+    <path d="M206 47 A27 27 0 1 0 206 87" stroke-linecap="round"/>
+    <circle cx="258" cy="67" r="27"/>
+    <path d="M352 50 C 348 40, 322 38, 318 52 C 314 66, 354 66, 352 82 C 350 98, 320 98, 316 86" stroke-linecap="round"/>
+    <circle cx="412" cy="67" r="27"/>
+  </g>
+  <circle cx="412" cy="67" r="9" fill="#FFC20E"/>
+  <text x="160" y="128" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="15.5" letter-spacing="5.2" fill="#FFFFFF">COURIER SOLUTIONS</text>
+</svg>
+</a>
+  <nav aria-label="Page"><a href="#products">Products</a><a href="#quote">Instant Quote</a><a href="#pricing">Pricing</a><a href="#about">About</a><a class="btn" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20free%20trial">Free trial</a></nav>
+</div></header>
+<section class="hero" id="top"><div class="in">
+  <div>
+    <span class="tag">Software for UK courier companies</span>
+    <h1>Built by couriers. <mark>For couriers.</mark></h1>
+    <p class="lead">Instant quotes and online booking for your website, so you win the jobs that come in after hours. From £19 a month, no contract.</p>
+    <div class="ctas"><a class="btn" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20free%20trial">Start 14-day free trial</a><a class="btn line" href="#quote">See how it works</a></div>
+    <div class="proof"><span><b>UK only</b>: postcodes, VAT, real road miles</span><span><b>Tested on our own vans</b> at PRJ Logistics, Reading</span></div>
+  </div>
+  <div>
+    <div class="browser" aria-label="Live demo on an example courier website">
+      <div class="bar"><i></i><i></i><i></i><span>your-courier-website.co.uk</span></div>
+      <div class="site"><div class="nav">Your Courier Co <small>Same day · UK wide</small></div><div id="iq-demo"></div><p class="try">Live demo. Try Reading, Slough, Heathrow or London, then press “See my price”.</p></div>
+    </div>
+  </div>
+</div></section>
+</div>
+
+<div class="stripe"><div class="in">
+  <div><b>Seconds</b>from address to price</div>
+  <div><b>1 line</b>of code on your website</div>
+  <div><b>£19</b>a month, cancel any time</div>
+  <div><b>14 days</b>free, no card needed</div>
+</div></div>
+
+<section class="block" id="products"><div class="in">
+  <span class="tag">Products</span>
+  <h2>Tools we built for our own vans</h2>
+  <p class="sub">We run a same-day courier company. Everything here started as something we needed ourselves, and now other courier firms can use it too.</p>
+  <div class="prods">
+    <article class="prod"><span class="st live">Available now</span><span class="ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M16 15v2"/></svg></span>
+      <h3>Instant Quote</h3><p>A price and booking form for your website, with your vans and your prices.</p>
+      <ul><li>UK address and postcode search</li><li>Urgent, evening and weekend extras</li><li>Bookings straight to your inbox</li></ul>
+      <a class="more" href="#quote">How it works</a></article>
+    <article class="prod"><span class="st">Early access</span><span class="ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 14l2 2 4-5"/></svg></span>
+      <h3>Driver app &amp; proof of delivery</h3><p>Jobs on your drivers' phones, with photos and signatures your customers can see.</p>
+      <ul><li>Photo and signature at every drop</li><li>Live status and tracking page</li><li>Proof of delivery PDF for invoices</li></ul>
+      <a class="more" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20driver%20app%20early%20access">Join early access</a></article>
+    <article class="prod"><span class="st">Coming soon</span><span class="ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6M8 11h6M8 15h3"/></svg></span>
+      <h3>Courier Books</h3><p>For self-employed drivers: what each day really leaves you, after fuel, van and tax.</p>
+      <ul><li>Daily log from your van's trip computer</li><li>Invoices, costs and VAT flat rate</li><li>Get ready for Making Tax Digital</li></ul>
+      <a class="more" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20Courier%20Books%20waiting%20list">Join the waiting list</a></article>
+  </div>
+</div></section>
+
+<section class="block white" id="quote"><div class="in">
+  <span class="tag">Instant Quote</span>
+  <h2>Live on your website in a day</h2>
+  <p class="sub">No new system to learn. Keep working the way you do now; booking requests just arrive with the price already worked out.</p>
+  <div class="steps">
+    <div class="step"><b>Send us your prices</b><p>Your vans, a start price, a price per mile and a minimum, plus extras for urgent jobs, evenings and weekends.</p></div>
+    <div class="step"><b>Paste one line</b><p>We send you a short piece of code for your quote or contact page. On Pro, we put it on your site for you.</p></div>
+    <div class="step"><b>Get bookings by email</b><p>Addresses, miles, van, time and price in every request. Hit reply to confirm with the customer.</p></div>
+  </div>
+  <div class="feat">
+    <div><p style="margin:0"><b>Real road miles</b><span>Priced from the driving route, not a straight line.</span></p></div>
+    <div><p style="margin:0"><b>Your price list, per van</b><span>Small van, SWB, LWB, Luton: start price, per mile, minimum.</span></p></div>
+    <div><p style="margin:0"><b>VAT your way</b><span>No VAT, VAT on top, or prices that include VAT.</span></p></div>
+    <div><p style="margin:0"><b>Your colours and name</b><span>Looks like part of your site, on phones and computers.</span></p></div>
+    <div><p style="margin:0"><b>Spam protection</b><span>Robots are filtered out, and the form only works on your website.</span></p></div>
+    <div><p style="margin:0"><b>You stay in charge</b><span>Nothing is confirmed until you reply. Change prices any time.</span></p></div>
+  </div>
+</div></section>
+
+<section class="block" id="pricing"><div class="in">
+  <span class="tag">Pricing</span>
+  <h2>One simple monthly price</h2>
+  <p class="sub">14 days free. No contract: cancel any month.</p>
+  <div class="prices">
+    <div class="plan"><h3>Basic</h3><div class="p">£19<small>/ month</small></div>
+      <ul><li>Instant price and booking requests</li><li>Up to 5 vans with your prices</li><li>Your colours and name</li><li>Small “by COSO” link</li></ul>
+      <a class="btn" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20Basic%20free%20trial">Start free trial</a></div>
+    <div class="plan best"><h3>Pro</h3><div class="p">£39<small>/ month</small></div>
+      <ul><li>Everything in Basic</li><li>No COSO link</li><li>Up to 3 websites</li><li>We set it up on your site for you</li></ul>
+      <a class="btn" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20Pro%20free%20trial">Start free trial</a></div>
+  </div>
+  <p class="soon">Coming next: card payment when the customer books, and a tracking page for your customers.</p>
+  <h3 style="font:900 1.3rem var(--f);margin:48px 0 14px">This is all you paste</h3>
+  <pre class="code">&lt;div data-prj-quote&gt;&lt;/div&gt;
+&lt;script src="https://prj-quote.patryk-forgiel.workers.dev/widget.js"
+        data-tenant="your-company" async&gt;&lt;/script&gt;</pre>
+</div></section>
+
+<section class="block white" id="about"><div class="in about">
+  <div>
+    <span class="tag">About</span>
+    <h2>We drive the routes too</h2>
+    <p class="sub" style="margin-bottom:0">COSO comes from PRJ Logistics, a same-day van courier in Reading, Berkshire. We built our own quotes, driver app, proof of delivery and invoicing because nothing on the market fitted a small UK courier. COSO makes those tools available to other courier companies, with support from people who know the job.</p>
+  </div>
+  <div class="quote"><p>“Customers want a price now, not a call back tomorrow. We built the tools we wanted for our own vans, and now any courier can use them.”</p><footer>Patryk Forgiel, Director, PRJ Logistics</footer></div>
+</div></section>
+
+<section class="block"><div class="in">
+  <span class="tag">Questions</span>
+  <h2>Before you start</h2>
+  <details><summary>Do I need a web developer?</summary><p>No. If you can add a block of text to your website, you can add Instant Quote. On Pro we do it for you.</p></details>
+  <details><summary>Is the price on the website binding?</summary><p>The customer sends a booking request with the price shown. Nothing is confirmed until you reply, so you can still say no or change the time.</p></details>
+  <details><summary>Which websites does it work on?</summary><p>Any website that lets you add HTML or an “embed” block, including WordPress, Wix and Squarespace.</p></details>
+  <details><summary>Can I change my prices?</summary><p>Yes, at any time. Send us the new prices and they are usually live the same day.</p></details>
+  <details><summary>Who is behind COSO?</summary><p>COSO Courier Solutions is a trading name of PRJ Logistics Ltd, registered in England and Wales and with the ICO (ZC282214). We can sign a data processing agreement with you.</p></details>
+</div></section>
+
+<section class="in"><div class="final">
+  <div><h2>Win the evening jobs</h2><p>Try Instant Quote free for 14 days on your own website. No card needed, no contract.</p></div>
+  <a class="btn" href="mailto:contact@prjlogistics.co.uk?subject=COSO%20free%20trial">Start free trial</a>
+</div></section>
+
+<footer class="foot"><div class="in"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" focusable="false" aria-label="COSO Courier Solutions">
+  <rect x="0" y="10" width="120" height="120" rx="26" fill="#FFC20E"/>
+  <path d="M84 46 A34 34 0 1 0 84 94" fill="none" stroke="#111111" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="86" cy="70" r="9" fill="#111111"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="17">
+    <path d="M206 47 A27 27 0 1 0 206 87" stroke-linecap="round"/>
+    <circle cx="258" cy="67" r="27"/>
+    <path d="M352 50 C 348 40, 322 38, 318 52 C 314 66, 354 66, 352 82 C 350 98, 320 98, 316 86" stroke-linecap="round"/>
+    <circle cx="412" cy="67" r="27"/>
+  </g>
+  <circle cx="412" cy="67" r="9" fill="#FFC20E"/>
+  <text x="160" y="128" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="15.5" letter-spacing="5.2" fill="#FFFFFF">COURIER SOLUTIONS</text>
+</svg>
+<span>COSO Courier Solutions is a trading name of PRJ Logistics Ltd · Reading, Berkshire · ICO ZC282214</span><span><a href="mailto:contact@prjlogistics.co.uk">contact@prjlogistics.co.uk</a></span></div></footer>
+<script src="coso-widget.js" data-tenant="demo" data-name="Your Courier Co" data-colour="#FFC20E" data-target="#iq-demo" data-api="https://prj-quote.patryk-forgiel.workers.dev" data-fallback="offline" async></script>
+
+</body></html>

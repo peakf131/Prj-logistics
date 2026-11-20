@@ -1,5 +1,8 @@
 /* PRJ Instant Quote widget */
 (function(){
+/* where the "Instant quotes by COSO" link points (COSO site; move to its own domain when bought) */
+const BRAND_URL = 'https://www.prjlogistics.co.uk/coso.html';
+
 /* ---- shared by the server (worker) and the widget's offline demo: one price formula ---- */
 
 /* A courier's price list. Every company gets its own copy, changed in the admin page. */
@@ -83,7 +86,7 @@ function crowMiles(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-/* ---- PRJ Instant Quote: the widget a courier company pastes into its website ----
+/* ---- COSO Instant Quote: the widget a courier company pastes into its website ----
    <div data-prj-quote></div>
    script tag: src="https://YOUR-WORKER/widget.js" data-tenant="company-id" async
    Optional: data-target="#css-selector", data-mode="offline" (sales demo, no server). */
@@ -163,7 +166,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--c);box-shadow:0 0 0 3
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chk{display:flex;gap:9px;align-items:flex-start;font-weight:500;font-size:.92rem;margin-top:12px}
 .chk input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--c);flex:none}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:18px;padding:14px 18px;border:0;border-radius:10px;background:var(--c);color:#fff;font:inherit;font-weight:700;font-size:1rem;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:18px;padding:14px 18px;border:0;border-radius:10px;background:var(--c);color:var(--on,#fff);font:inherit;font-weight:700;font-size:1rem;cursor:pointer}
 .btn[disabled]{opacity:.55;cursor:progress}
 .btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);margin-top:10px}
 .err{color:#B42318;font-size:.9rem;font-weight:600;margin:10px 0 0}
@@ -179,7 +182,7 @@ details{margin-top:10px;font-size:.9rem}summary{cursor:pointer;color:var(--mut)}
 table{width:100%;border-collapse:collapse;margin-top:6px}td{padding:5px 0;border-bottom:1px solid var(--line)}td:last-child{text-align:right;white-space:nowrap}
 .map{height:200px;margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
 .done{text-align:center;padding:12px 0}
-.done .tick{width:54px;height:54px;border-radius:50%;background:color-mix(in srgb,var(--c) 12%,#fff);color:var(--c);display:grid;place-items:center;margin:0 auto 10px;font-size:1.6rem;font-weight:800}
+.done .tick{width:54px;height:54px;border-radius:50%;background:var(--c);color:var(--on,#fff);display:grid;place-items:center;margin:0 auto 10px;font-size:1.6rem;font-weight:800}
 .ref{display:inline-block;margin:8px 0;padding:6px 12px;border-radius:8px;background:var(--soft);font-weight:700;letter-spacing:.04em}
 .by{margin-top:14px;text-align:center;font-size:.75rem;color:var(--mut)}.by a{color:inherit}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
@@ -194,7 +197,9 @@ table{width:100%;border-collapse:collapse;margin-top:6px}td{padding:5px 0;border
   const box = root.querySelector('.q');
   const $ = s => box.querySelector(s);
 
-  const start = c => { cfg = c; st.vehicle = (cfg.vehicles[0] || {}).id; box.style.setProperty('--c', cfg.colour || '#0B5FFF'); step1(); };
+  /* text on the company colour: dark on light colours (e.g. yellow), white on dark ones */
+  function onColour(hex) { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return '#fff'; const n = parseInt(m[1], 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return (.2126 * c[0] + .7152 * c[1] + .0722 * c[2]) > .4 ? '#111111' : '#ffffff'; }
+  const start = c => { cfg = c; st.vehicle = (cfg.vehicles[0] || {}).id; box.style.setProperty('--c', cfg.colour || '#0B5FFF'); box.style.setProperty('--on', onColour(cfg.colour)); step1(); };
   api.config().then(start).catch(e => {
     if (FALLBACK && !OFFLINE) { OFFLINE = true; return api.config().then(start); }
     box.innerHTML = '<p class="err">' + esc(e.message) + '</p>';
@@ -359,7 +364,7 @@ table{width:100%;border-collapse:collapse;margin-top:6px}td{padding:5px 0;border
     try { host.dispatchEvent(new CustomEvent('prjquote:booked', { bubbles: true, detail: { ref: r.ref, total: r.total } })); } catch (e) {}
   }
 
-  function by() { return cfg.plan === 'pro' ? '' : '<div class="by">Instant quotes by <a href="https://www.prjlogistics.co.uk/instant-quote.html" target="_blank" rel="noopener">PRJ Instant Quote</a></div>'; }
+  function by() { return cfg.plan === 'pro' ? '' : '<div class="by">Instant quotes by <a href="' + BRAND_URL + '" target="_blank" rel="noopener">COSO</a></div>'; }
 })();
 
 })();

@@ -1,3 +1,6 @@
+/* where the "Instant quotes by COSO" link points (COSO site; move to its own domain when bought) */
+const BRAND_URL = 'https://www.prjlogistics.co.uk/coso.html';
+
 /* ---- shared by the server (worker) and the widget's offline demo: one price formula ---- */
 
 /* A courier's price list. Every company gets its own copy, changed in the admin page. */

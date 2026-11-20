@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" aria-label="COSO Courier Solutions">
+  <rect x="0" y="10" width="120" height="120" rx="26" fill="#FFC20E"/>
+  <path d="M84 46 A34 34 0 1 0 84 94" fill="none" stroke="#111111" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="86" cy="70" r="9" fill="#111111"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="17">
+    <path d="M206 47 A27 27 0 1 0 206 87" stroke-linecap="round"/>
+    <circle cx="258" cy="67" r="27"/>
+    <path d="M352 50 C 348 40, 322 38, 318 52 C 314 66, 354 66, 352 82 C 350 98, 320 98, 316 86" stroke-linecap="round"/>
+    <circle cx="412" cy="67" r="27"/>
+  </g>
+  <circle cx="412" cy="67" r="9" fill="#FFC20E"/>
+  <text x="160" y="128" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="15.5" letter-spacing="5.2" fill="#FFFFFF">COURIER SOLUTIONS</text>
+</svg>
