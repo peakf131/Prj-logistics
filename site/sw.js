@@ -1,5 +1,5 @@
 // PRJ Logistics: lets the site open like an app and keep working when the signal drops.
-const CACHE = 'prj-v8';
+const CACHE = 'prj-v7';
 const SHELL = ['./', 'index.html', 'privacy.html', 'track.html', 'insurance.html', 'deliveries.html', 'manifest.webmanifest', 'icon-192-v2.png'];
 
 self.addEventListener('install', e => {
