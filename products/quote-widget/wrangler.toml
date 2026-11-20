@@ -1,0 +1,15 @@
+# Only needed if you deploy from the command line (npx wrangler deploy). The dashboard works without it.
+name = "prj-quote"
+main = "dist/worker.js"
+compatibility_date = "2026-11-01"
+
+[[kv_namespaces]]
+binding = "QUOTE"
+id = "PASTE-YOUR-KV-NAMESPACE-ID"
+
+# Secrets are set separately, never in this file:
+#   npx wrangler secret put ADMIN_KEY
+#   npx wrangler secret put RESEND_API_KEY
+#   npx wrangler secret put ORS_API_KEY      (optional)
+[vars]
+MAIL_FROM = "quotes@prjlogistics.co.uk"

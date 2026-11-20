@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Instant Quote · Admin</title>
+<style>
+:root{--c:#0B5FFF;--ink:#111827;--mut:#5B6472;--line:#E3E6EB;--soft:#F5F7FA}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--soft)}
+header{background:#111827;color:#fff;padding:14px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}header b{font-size:1.05rem}header span{color:#9CA3AF;font-size:.85rem}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:grid;gap:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+h2{margin:0 0 12px;font-size:1.1rem}
+label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;font-weight:600;color:var(--mut);min-width:0}
+input,select,textarea{font:inherit;color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0;background:#fff}
+.g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}@media(max-width:760px){.g{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.w2{grid-column:span 2}
+.btn{font:inherit;font-weight:600;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}.btn.go{background:var(--c);border-color:var(--c);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:.9rem}th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);border-bottom:1.5px solid var(--line);padding:6px}td{border-bottom:1px solid var(--line);padding:7px 6px;vertical-align:top}
+.tbl{overflow-x:auto}.r{text-align:right;white-space:nowrap}
+.van{display:grid;grid-template-columns:1fr 1.4fr 2fr .8fr .8fr .8fr .8fr auto;gap:6px;align-items:end;margin-bottom:6px}@media(max-width:760px){.van{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.msg{font-weight:600}.msg.bad{color:#B42318}.msg.ok{color:#15803D}
+pre{white-space:pre-wrap;background:var(--soft);padding:10px;border-radius:8px;font-size:.85rem;margin:0}
+code{background:var(--soft);padding:2px 5px;border-radius:5px;font-size:.85rem;word-break:break-all}
+[hidden]{display:none!important}
+</style></head><body>
+<header><b>PRJ Instant Quote · Admin</b><span>Companies, price lists and booking requests</span></header>
+<main>
+  <section class="card" id="login">
+    <h2>Sign in</h2>
+    <form class="row" id="lf"><label style="flex:1;min-width:220px">Admin key (the ADMIN_KEY secret you set in Cloudflare)<input id="key" type="password" autocomplete="current-password"></label><button class="btn go">Open</button></form>
+    <p class="msg bad" id="lm"></p>
+  </section>
+
+  <div id="app" hidden style="display:grid;gap:16px">
+  <section class="card">
+    <h2>Companies</h2>
+    <div class="tbl"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Websites</th><th>Plan</th><th></th></tr></thead><tbody id="tl"></tbody></table></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="new">+ New company</button></div>
+  </section>
+
+  <section class="card" id="ed" hidden>
+    <h2 id="edh">Company</h2>
+    <div class="g">
+      <label>ID (in the website code)<input id="f_id" pattern="[a-z0-9-]{2,40}" placeholder="e.g. swift-couriers"></label>
+      <label class="w2">Company name<input id="f_name"></label>
+      <label>Colour<input id="f_colour" type="color" value="#0B5FFF"></label>
+      <label class="w2">Email for booking requests<input id="f_email" type="email"></label>
+      <label>Phone shown to customers<input id="f_phone"></label>
+      <label>Plan<select id="f_plan"><option value="basic">Basic (£19, shows "by PRJ")</option><option value="pro">Pro (£39, no credit)</option></select></label>
+      <label class="w2">Websites allowed (comma separated, * = any)<input id="f_domains" placeholder="swiftcouriers.co.uk"></label>
+      <label>VAT<select id="f_vat"><option value="none">No VAT</option><option value="add">Add 20% VAT</option><option value="inc">Prices include VAT</option></select></label>
+      <label>Round price to<select id="f_roundTo"><option value="1">£1</option><option value="5">£5</option><option value="0.5">50p</option><option value="0.01">1p</option></select></label>
+      <label>Max miles online<input id="f_maxMiles" type="number" min="1"></label>
+      <label>Min notice (minutes)<input id="f_minNoticeMins" type="number" min="0"></label>
+      <label>Urgent / ASAP +%<input id="f_urgentPct" type="number" min="0"></label>
+      <label>Outside hours +%<input id="f_outOfHoursPct" type="number" min="0"></label>
+      <label>Weekend +%<input id="f_weekendPct" type="number" min="0"></label>
+      <label>Hours from<input id="f_hs" type="number" min="0" max="23"></label>
+      <label>Hours to<input id="f_he" type="number" min="1" max="24"></label>
+      <label class="w2">Working days (1=Mon … 6=Sat, 0=Sun)<input id="f_days" placeholder="1,2,3,4,5"></label>
+      <label class="w2">Terms page (https)<input id="f_terms"></label>
+      <label class="w2">Privacy page (https)<input id="f_privacy"></label>
+      <label class="w2">Logo (https, optional)<input id="f_logo"></label>
+      <label class="w2">Message after booking<input id="f_thanks"></label>
+      <label>Active<select id="f_active"><option value="1">Yes</option><option value="0">Paused</option></select></label>
+    </div>
+    <h2 style="margin-top:18px">Vans and prices</h2>
+    <div class="van" style="font-size:.72rem;color:var(--mut);font-weight:700"><span>ID</span><span>Name</span><span>Description</span><span>Max kg</span><span>Start £</span><span>£ per mile</span><span>Minimum £</span><span></span></div>
+    <div id="vans"></div>
+    <div class="row"><button class="btn" id="addv" type="button">+ Van</button></div>
+    <div class="row" style="margin-top:16px"><button class="btn go" id="save">Save company</button><button class="btn" id="del" type="button">Delete</button><span class="msg" id="em"></span></div>
+    <p style="margin-top:14px;font-size:.85rem;color:var(--mut)">Code for the company's website:</p>
+    <pre id="code"></pre>
+  </section>
+
+  <section class="card">
+    <h2>Booking requests</h2>
+    <div class="row" style="margin-bottom:8px"><select id="lt" style="width:auto"><option value="">All companies</option></select><button class="btn" id="lr">Refresh</button></div>
+    <div class="tbl"><table><thead><tr><th>When</th><th>Company</th><th>Ref</th><th>Customer</th><th>From → To</th><th class="r">Price</th></tr></thead><tbody id="ll"></tbody></table></div>
+    <pre id="ld" hidden style="margin-top:10px"></pre>
+  </section>
+  </div>
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id),esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let KEY='',T=[],cur=null;
+try{KEY=sessionStorage.getItem('iq_key')||''}catch(e){}
+async function call(p,o){o=o||{};const r=await fetch(p,Object.assign({},o,{headers:Object.assign({'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},o.headers||{})}));const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||('Error '+r.status));return j}
+$('lf').onsubmit=async e=>{e.preventDefault();KEY=$('key').value.trim();await start()};
+async function start(){try{await load();try{sessionStorage.setItem('iq_key',KEY)}catch(e){}$('login').hidden=true;$('app').hidden=false;leads()}catch(e){$('lm').textContent=e.message;try{sessionStorage.removeItem('iq_key')}catch(x){}}}
+async function load(){const j=await call('/admin/tenants');T=j.tenants;$('tl').innerHTML=T.length?T.map((t,i)=>`<tr><td><code>${esc(t.id)}</code></td><td>${esc(t.name)}${t.active===false?' (paused)':''}</td><td>${esc(t.email)}</td><td>${esc((t.domains||[]).join(', '))}</td><td>${esc(t.plan)}</td><td><button class="btn" data-i="${i}">Edit</button></td></tr>`).join(''):'<tr><td colspan="6">No companies yet. The demo works without one.</td></tr>';
+  $('lt').innerHTML='<option value="">All companies</option>'+T.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('')}
+$('tl').onclick=e=>{const b=e.target.closest('[data-i]');if(b)edit(T[+b.dataset.i])};
+$('new').onclick=()=>edit({id:'',name:'',colour:'#0B5FFF',plan:'basic',domains:['*'],vat:'none',roundTo:1,maxMiles:300,minNoticeMins:60,urgentPct:25,outOfHoursPct:25,weekendPct:30,hours:{start:8,end:18,days:[1,2,3,4,5]},active:true,
+  vehicles:[{id:'small',name:'Small van',desc:'Boxes and parcels, up to 400 kg',maxKg:400,base:30,perMile:1.1,minimum:40},{id:'swb',name:'SWB van',desc:'Up to 2 pallets or 800 kg',maxKg:800,base:35,perMile:1.3,minimum:50},{id:'lwb',name:'LWB van',desc:'Up to 3 pallets or 1,100 kg',maxKg:1100,base:40,perMile:1.5,minimum:60}]});
+const F=['name','colour','email','phone','plan','vat','roundTo','maxMiles','minNoticeMins','urgentPct','outOfHoursPct','weekendPct','terms','privacy','logo','thanks'];
+function edit(t){cur=t;$('ed').hidden=false;$('edh').textContent=t.id?'Edit: '+t.name:'New company';$('f_id').value=t.id;$('f_id').disabled=!!t.id;
+  F.forEach(k=>{$('f_'+k).value=t[k]==null?'':t[k]});$('f_domains').value=(t.domains||['*']).join(', ');$('f_hs').value=t.hours.start;$('f_he').value=t.hours.end;$('f_days').value=(t.hours.days||[]).join(',');$('f_active').value=t.active===false?'0':'1';
+  $('vans').innerHTML='';(t.vehicles||[]).forEach(addVan);code();$('em').textContent='';$('ed').scrollIntoView({behavior:'smooth'})}
+function addVan(v){v=v||{id:'',name:'',desc:'',maxKg:'',base:'',perMile:'',minimum:''};const d=document.createElement('div');d.className='van';
+  d.innerHTML=['id','name','desc','maxKg','base','perMile','minimum'].map(k=>`<input data-k="${k}" value="${esc(v[k])}" ${['maxKg','base','perMile','minimum'].includes(k)?'type="number" step="0.01" min="0"':''} aria-label="${k}">`).join('')+'<button class="btn" type="button" aria-label="Remove van">✕</button>';
+  d.querySelector('button').onclick=()=>d.remove();$('vans').appendChild(d)}
+$('addv').onclick=()=>addVan();
+function code(){const id=$('f_id').value||'company-id';$('code').textContent='<div data-prj-quote></div>\n<script src="'+location.origin+'/widget.js" data-tenant="'+id+'" async><\/script>'}
+$('f_id').oninput=code;
+$('save').onclick=async()=>{const id=$('f_id').value.trim().toLowerCase();if(!/^[a-z0-9-]{2,40}$/.test(id)){$('em').className='msg bad';$('em').textContent='ID: 2–40 lower-case letters, digits or dashes.';return}
+  const t={};F.forEach(k=>t[k]=$('f_'+k).value);['roundTo','maxMiles','minNoticeMins','urgentPct','outOfHoursPct','weekendPct'].forEach(k=>t[k]=+t[k]);
+  t.domains=$('f_domains').value.split(',').map(s=>s.trim()).filter(Boolean);t.hours={start:+$('f_hs').value,end:+$('f_he').value,days:$('f_days').value.split(',').map(s=>+s.trim()).filter(n=>!isNaN(n))};t.active=$('f_active').value==='1';
+  t.vehicles=[...$('vans').children].map(d=>{const o={};d.querySelectorAll('input').forEach(i=>o[i.dataset.k]=i.type==='number'?+i.value:i.value.trim());return o});
+  try{await call('/admin/tenants/'+id,{method:'PUT',body:JSON.stringify(t)});$('em').className='msg ok';$('em').textContent='Saved.';await load();$('f_id').disabled=true}catch(e){$('em').className='msg bad';$('em').textContent=e.message}};
+$('del').onclick=async()=>{const id=$('f_id').value;if(!id||!confirm('Delete '+id+'? Their website form stops working.'))return;try{await call('/admin/tenants/'+id,{method:'DELETE'});$('ed').hidden=true;await load()}catch(e){$('em').textContent=e.message}};
+async function leads(){try{const j=await call('/admin/leads?t='+encodeURIComponent($('lt').value));$('ll').innerHTML=j.leads.length?j.leads.map(l=>`<tr data-k="${esc(l.key)}" style="cursor:pointer"><td>${esc(new Date(l.created).toLocaleString('en-GB'))}</td><td>${esc(l.tenant)}</td><td>${esc(l.ref)}</td><td>${esc(l.name)}</td><td>${esc(l.from)} → ${esc(l.to)}</td><td class="r">£${(+l.total).toFixed(2)}</td></tr>`).join(''):'<tr><td colspan="6">No booking requests yet.</td></tr>'}catch(e){$('ll').innerHTML='<tr><td colspan="6">'+esc(e.message)+'</td></tr>'}}
+$('lr').onclick=leads;$('lt').onchange=leads;
+$('ll').onclick=async e=>{const tr=e.target.closest('tr[data-k]');if(!tr)return;try{const j=await call('/admin/lead?key='+encodeURIComponent(tr.dataset.k));const l=j.lead;$('ld').hidden=false;$('ld').textContent=`${l.ref} · ${l.customer.name}${l.customer.company?' ('+l.customer.company+')':''}\n${l.customer.phone} · ${l.customer.email}\n\nFrom: ${l.from.label}\nTo: ${l.to.label}\nWhen: ${l.asap?'ASAP':new Date(l.when).toLocaleString('en-GB')}\nVan: ${l.vehicle} · ${l.miles} miles\nGoods: ${l.goods||'-'}\nNotes: ${l.notes||'-'}\n\n${l.lines.map(x=>x.label+': £'+x.amount.toFixed(2)).join('\n')}\nPrice: £${l.net.toFixed(2)}${l.vatMode==='add'?' + VAT £'+l.vat.toFixed(2):''}\nPage: ${l.page||'-'}`}catch(x){}};
+if(KEY)start();
+</script>
+</body></html>
