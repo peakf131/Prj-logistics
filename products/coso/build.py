@@ -9,10 +9,11 @@ dark = (here / 'brand' / 'wordmark-dark.svg').read_text(encoding='utf-8')
 dark = re.sub(r'\s+role="img"', ' role="img" focusable="false"', dark, count=1)
 widget = (here.parent / 'quote-widget' / 'dist' / 'widget.js').read_text(encoding='utf-8')
 attrs = 'data-tenant="demo" data-name="Your Courier Co" data-colour="#FFC20E" data-target="#iq-demo"'
-page = page.replace('__LOGO_DARK__', dark).replace('__LOGO_DARK_SMALL__', dark).replace('__CONTACT__', CONTACT)
+yel = re.sub(r'\s+role="img"', ' role="img" focusable="false"', (here / 'brand' / 'wordmark-on-yellow.svg').read_text(encoding='utf-8'), count=1)
+page = page.replace('__LOGO_YELLOW__', yel).replace('__LOGO_DARK__', dark).replace('__CONTACT__', CONTACT)
 out = here / 'dist'; out.mkdir(exist_ok=True)
 head = ('<!doctype html>\n<html lang="en-GB" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
-        '<meta name="theme-color" content="#111111"><link rel="icon" type="image/png" sizes="32x32" href="coso-icon-32.png"><link rel="apple-touch-icon" href="coso-icon-180.png">\n'
+        '<meta name="theme-color" content="#FFC20E"><link rel="icon" type="image/png" sizes="32x32" href="coso-icon-32.png"><link rel="apple-touch-icon" href="coso-icon-180.png">\n'
         '<meta property="og:title" content="COSO Courier Solutions"><meta property="og:description" content="Software for UK courier companies, built by couriers."><meta property="og:image" content="https://www.prjlogistics.co.uk/coso-og.png">\n')
 site = page.replace('__WIDGET_TAG__', '<script src="coso-widget.js" ' + attrs + ' data-api="' + API + '" data-fallback="offline" async></script>')
 t = site.index('</style>') + len('</style>')
