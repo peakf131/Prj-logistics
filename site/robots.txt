@@ -5,3 +5,5 @@ Disallow: /driver.html
 Disallow: /client.html
 Disallow: /quote.html
 Disallow: /migrate.html
+
+Sitemap: https://www.prjlogistics.co.uk/sitemap.xml
